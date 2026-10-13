@@ -1,0 +1,149 @@
+:root {
+  --bg: #080B10;
+  --surface: #111720;
+  --surface-hover: #182230;
+
+  --primary: #00B8FF;
+
+  --text: #F5F7FA;
+  --text-muted: #9AA6B2;
+
+  --border: #26313D;
+
+  --platinum: #D6B45A;
+}
+
+.app-container {
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+nav {
+  display: flex;
+  gap: 12px;
+  margin: 12px 12px 0 0;
+  justify-content: center;
+}
+
+/* Game card ----------------*/
+/* PAGE */
+
+.games-list-page {
+  min-height: 100vh;
+  padding: 40px 32px;
+  background: var(--bg);
+  color: var(--text);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* GAMES GRID */
+
+.games-grid {
+  width: 100%;
+  max-width: 1250px;
+  margin: 0 auto;
+
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 22px;
+}
+
+/* GAME CARD */
+
+.game-card {
+  display: flex;
+  flex-direction: column;
+
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+
+  overflow: hidden;
+
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+/* Gaming-style hover effect */
+
+.game-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--primary);
+
+  box-shadow:
+    0 8px 25px rgba(0, 0, 0, 0.45),
+    0 0 12px rgba(0, 184, 255, 0.12);
+}
+
+/* GAME COVER */
+
+.game-cover {
+  width: 100%;
+  height: 260px;
+
+  object-fit: cover;
+  display: block;
+
+  background: #0f141b;
+}
+
+/* GAME INFORMATION */
+
+.game-info {
+  padding: 17px 18px 20px;
+}
+
+.game-info h2 {
+  margin: 0 0 8px;
+
+  font-size: 19px;
+  font-weight: 700;
+
+  color: #ffffff;
+
+  line-height: 1.3;
+}
+
+.game-info p {
+  margin: 0;
+
+  color: #9ca8b5;
+
+  font-size: 14px;
+  line-height: 1.55;
+
+  overflow: hidden;
+}
+
+
+  /* RESPONSIVE */
+
+
+@media (max-width: 700px) {
+  .games-page {
+    padding: 25px 18px;
+  }
+
+  .games-grid {
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 18px;
+  }
+
+  .game-cover {
+    height: 230px;
+  }
+}
+
+@media (max-width: 500px) {
+  .games-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .game-cover {
+    height: 260px;
+  }
+}

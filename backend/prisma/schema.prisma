@@ -1,0 +1,112 @@
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id                String  @id @default(uuid()) @db.Uuid
+  username          String  @unique
+  email             String  @unique
+  password_hash     String
+  bio               String?
+  created_at        DateTime @default(now())
+  user_games      UserGame[]
+  user_trophies     UserTrophy[]
+  platinum_records   PlatinumRecord[]
+}
+
+model Game {
+  id                String  @id @default(uuid()) @db.Uuid
+  title             String
+  game_description   String
+  cover_url          String
+  platforms          String[]
+  release_date       DateTime
+  user_games         UserGame[]
+  trophies           Trophy[]
+  platinum_records   PlatinumRecord[]
+}
+
+enum GameStatus{
+  WANT_TO_PLAY
+  PLAYING
+  COMPLETED
+  PLATINUM
+}
+
+model UserGame {
+  id                String  @id @default(uuid()) @db.Uuid
+  user_id           String   @db.Uuid
+  game_id           String   @db.Uuid
+  status            GameStatus
+
+  // Relation fields for the user and game
+  user              User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  game              Game     @relation(fields: [game_id], references: [id])
+
+  @@unique([user_id, game_id])
+}
+
+model PlatinumRecord {
+  id                    String  @id @default(uuid()) @db.Uuid
+  user_id               String   @db.Uuid
+  game_id               String   @db.Uuid
+  platinum_date         DateTime @default(now())
+  hours_spent           Int  
+  personal_difficulty   Int //1-10
+  notes                 String  @db.Text
+
+  // Relation fields for the user and game
+  user              User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  game              Game     @relation(fields: [game_id], references: [id])
+
+  @@unique([user_id, game_id])
+}
+
+enum Grade {
+  PLATINUM
+  GOLD
+  SILVER
+  BRONZE
+}
+
+enum Rarity {
+  COMMON
+  VERY_RARE
+  RARE
+  ULTRA_RARE
+} 
+
+model Trophy {
+  id                      String  @id @default(uuid()) @db.Uuid
+  game_id                 String  @db.Uuid
+  name                    String 
+  description             String  
+  grade                    Grade
+  rarity                  Rarity
+  missable                Boolean
+  user_trophies           UserTrophy[]
+
+  // Relation field for the game
+  game              Game     @relation(fields: [game_id], references: [id])
+  @@index([game_id])
+}
+
+model UserTrophy {
+  id                String  @id @default(uuid()) @db.Uuid
+  user_id           String  @db.Uuid
+  trophy_id         String  @db.Uuid
+  earned            Boolean @default(false)
+  earned_at         DateTime?
+
+  // Relation fields for the user and trophy
+  user              User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  trophy            Trophy   @relation(fields: [trophy_id], references: [id])
+
+  @@unique([user_id, trophy_id])
+}
