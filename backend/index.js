@@ -328,7 +328,7 @@ app.post('/api/games/:id/platinum', requireAuth, async (req, res) => {
     }
 });
 
-app.get('/api/profile/profile', requireAuth, async (req, res) => {
+app.get('/api/profile/stats', requireAuth, async (req, res) => {
     try {
         const profileStats = await prisma.platinumRecord.aggregate({
             where: {

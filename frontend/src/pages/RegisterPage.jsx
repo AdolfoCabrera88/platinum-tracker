@@ -1,6 +1,6 @@
 import { useAuth } from '../context/AuthContext';
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 function RegisterPage() {
       const { register } = useAuth();
@@ -23,34 +23,120 @@ function RegisterPage() {
 
 
     return (
-        <div className="register-page">
-            <h1>Register Page</h1>
-            <form onSubmit={handleSubmit}>
-                <input 
-                    type="text" 
-                    placeholder="Username" 
-                    id="username" 
-                    value={username} 
-                    onChange={(e) => setUsername(e.target.value)} 
-                />
-                <input 
-                    type="email" 
-                    placeholder="Email" 
-                    id="email" 
-                    value={email} 
-                    onChange={(e) => setEmail(e.target.value)} 
-                />
-                <input 
-                    type="password" 
-                    placeholder="Password" 
-                    id="password" 
-                    value={password} 
-                    onChange={(e) => setPassword(e.target.value)} 
-                />
-                {error && <p style={{ color: 'red' }}>{error}</p>}
-                <button type="submit">Register</button>
-            </form>
-        </div>
+         <main className="register-page">
+
+            <section className="section">
+
+            <div className="card form-card">
+
+                <div className="section-header">
+                <h1 className="section-title">
+                    Create Account
+                </h1>
+                </div>
+
+                <form onSubmit={handleSubmit}>
+
+                <div className="form-group">
+
+                    <label
+                    htmlFor="username"
+                    className="form-label"
+                    >
+                    Username
+                    </label>
+
+                    <input
+                    className="form-input"
+                    type="text"
+                    placeholder="Choose a username"
+                    id="username"
+                    value={username}
+                    onChange={(e) =>
+                        setUsername(e.target.value)
+                    }
+                    required
+                    />
+
+                </div>
+
+
+                <div className="form-group">
+
+                    <label
+                    htmlFor="email"
+                    className="form-label"
+                    >
+                    Email
+                    </label>
+
+                    <input
+                    className="form-input"
+                    type="email"
+                    placeholder="Enter your email"
+                    id="email"
+                    value={email}
+                    onChange={(e) =>
+                        setEmail(e.target.value)
+                    }
+                    required
+                    />
+
+                </div>
+
+
+                <div className="form-group">
+
+                    <label
+                    htmlFor="password"
+                    className="form-label"
+                    >
+                    Password
+                    </label>
+
+                    <input
+                    className="form-input"
+                    type="password"
+                    placeholder="Create a password"
+                    id="password"
+                    value={password}
+                    onChange={(e) =>
+                        setPassword(e.target.value)
+                    }
+                    required
+                    />
+
+                </div>
+
+
+                {error && (
+                    <p className="error">
+                    {error}
+                    </p>
+                )}
+
+
+                <button
+                    type="submit"
+                    className="btn-primary"
+                >
+                    Register
+                </button>
+
+                <p>
+                    Already have an account?{' '}
+                    <Link to="/login" className="section-link">
+                        Log in
+                    </Link>
+                </p>
+
+                </form>
+
+            </div>
+
+            </section>
+
+        </main>
     );
 }
 

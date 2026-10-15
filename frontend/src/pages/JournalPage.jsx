@@ -53,7 +53,7 @@ const JournalPage = () => {
                         {entry.game.title}
                         </Link>
 
-                        <p>{new Date(entry.platinum_date).toLocaleDateString()}</p>
+                        <p>{new Date(entry.platinum_date).toLocaleDateString("en-US", { timezone: "UTC:"})}</p>
                         <p>Hours: {entry.hours_spent ?? 'N/A'}</p>
                         <p>Difficulty: {entry.personal_difficulty ?? 'N/A'}</p>
                         <p>Notes: {entry.notes ?? 'N/A'}</p>

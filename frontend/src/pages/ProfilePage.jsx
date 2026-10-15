@@ -12,7 +12,7 @@ const ProfilePage = () => {
                 setLoading(true);
                 setError(null);
                 
-                const response = await fetch(`${API_URL}/profile/profile`, {
+                const response = await fetch(`${API_URL}/profile/stats`, {
                     credentials: 'include',
                 });
 

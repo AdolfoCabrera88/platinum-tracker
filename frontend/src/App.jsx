@@ -4,7 +4,6 @@ import GameDetailsPage from './pages/GameDetailsPage';
 import RegisterPage from './pages/RegisterPage';
 import LoginPage from './pages/LoginPage';
 import ProfilePage from './pages/ProfilePage';
-import DiaryPage from './pages/JournalPage';
 import './styles/App.css';
 import ProtectedRoute from './components/ProtectedRoute';
 import Navbar from './components/Navbar';
@@ -23,8 +22,8 @@ function App() {
           <Route path="/games/:id" element={<GameDetailsPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/login" element={<LoginPage />} />
-          <Route path="/profile/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
-          <Route path="/profile/journal" element={<ProtectedRoute><JournalPage /></ProtectedRoute>} />
+          <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+          <Route path="/journal" element={<ProtectedRoute><JournalPage /></ProtectedRoute>} />
         </Routes>
       </div>
     </BrowserRouter>

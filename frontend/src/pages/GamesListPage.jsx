@@ -1,5 +1,4 @@
 import GameCard from '../components/GameCard';
-import NavBar from '../components/Navbar.jsx';
 import { useState, useEffect } from 'react';
 import { API_URL } from '../config';
 import '../styles/App.css';
@@ -37,21 +36,28 @@ const GamesListPage = () => {
   if (error) return <p>Error loading games: {error}</p>;
 
   return (
-    <>
-      <div className="games-list-page">
-           <NavBar />
-        <div className="games-grid">
-          {games.length === 0 ? (
-            <p>No games available.</p>
-          ) : (
-            games.map((game) => (
-              <GameCard key={game.id} game={game} />
-            ))
-          )}
+
+    <main className="games-list-page">
+      <section className="section">
+        
+        <div className="section-header">
+          <h1 className="section-title">Games</h1>
         </div>
-      </div>
-    </>
-  )
+
+        {games.length === 0 ? (
+          <p className="game-card-meta">No games available.</p>
+        ) : (
+          <div className="game-grid">
+            {games.map((game) => (
+              <GameCard key={game.id} game={game} />
+            ))}
+          </div>
+        )}
+
+      </section>
+    </main>
+  );
+
 };
 
 export default GamesListPage;

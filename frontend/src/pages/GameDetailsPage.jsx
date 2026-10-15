@@ -136,89 +136,372 @@ const GameDetailsPage = () => {
     if (loading) return <p>Loading game details...</p>;
     if (error) return <p>Error loading game details: {error}</p>;
 
-    return (
-        <div>
-                    <h1>Game Details Page</h1>
-                    {game && (
-                        <div key={game.id} className="game-details-page--card">
-                            <img src={game.cover_url} alt={`${game.title} cover`} className="game-details-page--cover" />
-                            <div className="game-details-page--info">
-                                <h2>{game.title}</h2>
-                                <p>{game.game_description}</p>
-                                <p>Platform: {game.platforms.join(', ')}</p>
-                                <p>Release Date: {game.release_date}</p>
-                                <p>Trophies: {game.trophies.length}</p>
+    return (        
+        <main className="game-detail">
 
-                                <label htmlFor="status-select">Status: </label>
-                                <select 
+            {game && (
+            <>
+
+                {/*  GAME HEADER */}
+
+                <section className="game-detail-header">
+
+                <img
+                    src={game.cover_url}
+                    alt={`${game.title} cover`}
+                    className="game-detail-cover"
+                />
+
+                <div className="game-detail-info">
+
+                    <h1 className="game-detail-title">
+                    {game.title}
+                    </h1>
+
+                    <p className="game-detail-description">
+                    {game.game_description}
+                    </p>
+
+
+                    {/* GAME STATS */}
+
+                    <div className="game-detail-stats">
+
+                    <div className="game-stat">
+                        <span className="game-stat-value">
+                        {game.trophies.length}
+                        </span>
+
+                        <span className="game-stat-label">
+                        Trophies
+                        </span>
+                    </div>
+
+
+                    <div className="game-stat">
+                        <span className="game-stat-value">
+                        {game.platforms.join(", ")}
+                        </span>
+
+                        <span className="game-stat-label">
+                        Platform
+                        </span>
+                    </div>
+
+
+                    <div className="game-stat">
+                        <span className="game-stat-value">
+                        {new Date(game.release_date).toLocaleDateString("en-US", { timezone: "UTC:"})}
+                        </span>
+
+                        <span className="game-stat-label">
+                        Release Date
+                        </span>
+                    </div>
+
+                    </div>
+
+
+                    {/* STATUS */}
+
+                    <div className="form-group">
+
+                    {game.userStatus === "PLATINUM" ? (
+                        <p className="status-badge">🏆 Platinum</p>
+                        ) : (
+                        <>
+                            <label htmlFor="status-select" className="form-label" > Game Status </label>
+
+                            <select
                                 id="status-select"
-                                disabled={game.userStatus === 'PLATINUM'}
-                                value={game.userStatus || ''}
-                                onChange={ (e) => handleStatusChange( e.target.value)}>
-                                    <option value="">Select status</option>
-                                    <option value="WANT_TO_PLAY">Want to Play</option>
-                                    <option value="PLAYING">Playing</option>
-                                    <option value="COMPLETED">Completed</option>
-                                </select>
-                                {statusErr && <p className="error">{statusErr}</p>}
+                                className="form-select"
+                                value={game.userStatus || ""}
+                                onChange={(e) =>
+                                handleStatusChange(e.target.value)
+                                }
+                            >
+                                <option value="">
+                                Select status
+                                </option>
+
+                                <option value="WANT_TO_PLAY">
+                                Want to Play
+                                </option>
+
+                                <option value="PLAYING">
+                                Playing
+                                </option>
+
+                                <option value="COMPLETED">
+                                Completed
+                                </option>
+
+                                <option disabled hidden value="PLATINUM">
+                                Platinum
+                                </option>
+                            </select>
+                        </>
+                    )}
+
+                    {statusErr && (
+                        <p className="error">
+                        {statusErr}
+                        </p>
+                    )}
+
+                    </div>
+
+                </div>
+
+                </section>
 
 
-                                <div>
-                                    <h3>Trophies</h3>
-                                    {!game.userStatus && <p>Add this game to your library to track trophies.</p>}
-                                    {game.trophies.map((trophy) => (
-                                        <div key={trophy.id}>
-                                            <p>{trophy.name}</p>
-                                            <input 
-                                            type="checkbox" 
-                                            checked={trophy.earned ? true : false} 
-                                            disabled={!game.userStatus || game.userStatus === 'PLATINUM'}
-                                            onChange={() => handleTrophyChange(trophy)}
-                                        />
-                                        </div>
-                                    ))}
-                                </div>
-                                <div>
-                                    <h3>Platinum</h3>
-                                    {!allEarned && game.userStatus !== 'PLATINUM' && <p>Earn all trophies to unlock platinum.</p>}
-                                    {allEarned && game.userStatus !== 'PLATINUM' && (
-                                    <form onSubmit={handlePlatinumSubmit}>
-                                        <input //hours spent input for platinum
-                                             type="number"
-                                             name="hours_spent"
-                                             min="0"
-                                             placeholder="Hours spent"
-                                             value={platinumForm.hours_spent}
-                                             onChange={(e) => setPlatinumForm( prev => ({...prev, hours_spent: e.target.value}))}
-                                             required
-                                        />
-                                        <input //personal difficulty input for platinum
-                                             type="number"
-                                             name="personal_difficulty"
-                                             min="1"
-                                             max="10"
-                                             placeholder="Difficulty"
-                                             value={platinumForm.personal_difficulty}
-                                             onChange={(e) => setPlatinumForm(prev => ({...prev, personal_difficulty: e.target.value}))}
-                                             required
-                                        />
-                                        <textarea //notes input for platinum
-                                             name="notes"
-                                             value={platinumForm.notes}
-                                             placeholder="Notes"
-                                             onChange={(e) => setPlatinumForm(prev => ({...prev, notes: e.target.value}))}
-                                        />
-                                        {platinumErr && <p className="error">{platinumErr}</p>}
-                                        <button type="submit">Create Platinum</button>
-                                    </form>
-                                    )}
-                                    {game.userStatus === 'PLATINUM' && <p>Platinum trophy earned!</p>}
-                                </div>
-                            </div>
+                {/* =========================================
+                    TROPHIES
+                ========================================= */}
+
+                <section className="section">
+
+                <div className="section-header">
+
+                    <h2 className="section-title">
+                    Trophies
+                    </h2>
+
+                </div>
+
+
+                {!game.userStatus && (
+                    <p className="hint">
+                    Add this game to your library to track trophies.
+                    </p>
+                )}
+
+
+                <div className="trophy-list">
+
+                    {game.trophies.map((trophy) => (
+
+                    <div
+                        key={trophy.id}
+                        className="trophy-item"
+                    >
+
+                        <div className="trophy-item-icon">
+                        🏆
                         </div>
-                    )}   
-        </div>
-    )
+
+
+                        <div className="trophy-item-info">
+
+                        <p className="trophy-item-name">
+                            {trophy.name}
+                        </p>
+
+                        <p className="trophy-item-description">
+                            {trophy.description}
+                        </p>
+
+                        </div>
+
+
+                        <div className="trophy-item-action">
+
+                        <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+
+                            <input
+                            type="checkbox"
+                            checked={trophy.earned ? true : false}
+                            disabled={
+                                !game.userStatus ||
+                                game.userStatus === "PLATINUM"
+                            }
+                            onChange={() =>
+                                handleTrophyChange(trophy)
+                            }
+                            />
+
+                            <span className={trophy.earned ? "trophy-item-earned" : "trophy-item-unearned"}>
+                            {trophy.earned
+                                ? "Earned"
+                                : "Not Earned"}
+                            </span>
+
+                        </label>
+
+                        </div>
+
+                    </div>
+
+                    ))}
+
+                </div>
+
+                </section>
+
+
+                {/* =========================================
+                    PLATINUM
+                ========================================= */}
+
+                <section className="section">
+
+                <div className="section-header">
+
+                    <h2 className="section-title">
+                    Platinum
+                    </h2>
+
+                </div>
+
+
+                {!allEarned &&
+                    game.userStatus !== "PLATINUM" && (
+                    <p className="game-card-meta">
+                        Earn all trophies to unlock the platinum.
+                    </p>
+                    )}
+
+
+                {allEarned &&
+                    game.userStatus !== "PLATINUM" && (
+
+                    <form
+                        className="card form-card"
+                        onSubmit={handlePlatinumSubmit}
+                    >
+
+                        <div className="form-group">
+
+                        <label
+                            htmlFor="hours-spent"
+                            className="form-label"
+                        >
+                            Hours Spent
+                        </label>
+
+                        <input
+                            id="hours-spent"
+                            className="form-input"
+                            type="number"
+                            name="hours_spent"
+                            min="0"
+                            placeholder="How many hours did it take?"
+                            value={platinumForm.hours_spent}
+                            onChange={(e) =>
+                            setPlatinumForm((prev) => ({
+                                ...prev,
+                                hours_spent: e.target.value
+                            }))
+                            }
+                            required
+                        />
+
+                        </div>
+
+
+                        <div className="form-group">
+
+                        <label
+                            htmlFor="personal-difficulty"
+                            className="form-label"
+                        >
+                            Personal Difficulty
+                        </label>
+
+                        <input
+                            id="personal-difficulty"
+                            className="form-input"
+                            type="number"
+                            name="personal_difficulty"
+                            min="1"
+                            max="10"
+                            placeholder="Difficulty from 1–10"
+                            value={platinumForm.personal_difficulty}
+                            onChange={(e) =>
+                            setPlatinumForm((prev) => ({
+                                ...prev,
+                                personal_difficulty: e.target.value
+                            }))
+                            }
+                            required
+                        />
+
+                        </div>
+
+
+                        <div className="form-group">
+
+                        <label
+                            htmlFor="platinum-notes"
+                            className="form-label"
+                        >
+                            Notes
+                        </label>
+
+                        <textarea
+                            id="platinum-notes"
+                            className="form-textarea"
+                            name="notes"
+                            placeholder="Write about your platinum experience..."
+                            value={platinumForm.notes}
+                            onChange={(e) =>
+                            setPlatinumForm((prev) => ({
+                                ...prev,
+                                notes: e.target.value
+                            }))
+                            }
+                        />
+
+                        </div>
+
+
+                        {platinumErr && (
+                        <p className="error">
+                            {platinumErr}
+                        </p>
+                        )}
+
+
+                        <button
+                        type="submit"
+                        className="btn-primary"
+                        >
+                        Create Platinum
+                        </button>
+
+                    </form>
+
+                    )}
+
+
+                {game.userStatus === "PLATINUM" && (
+
+                    <div className="card card--platinum">
+
+                    <div>
+                        🏆
+                    </div>
+
+                    <h3>
+                        Platinum Trophy Earned!
+                    </h3>
+
+                    <p className="hint">
+                        You have completed every trophy for this game.
+                    </p>
+
+                    </div>
+
+                )}
+
+                </section>
+
+            </>
+            )}
+
+        </main>
+    );
 }
 
 export default GameDetailsPage;

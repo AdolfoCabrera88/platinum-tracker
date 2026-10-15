@@ -4,15 +4,39 @@ import '../styles/App.css';
 const GameCard = ({ game }) => {
 
   return (
-  <div className="game-card">
-    <img src={game.cover_url} alt={`${game.title} cover`} className="game-cover" />
-    <div className="game-info">
-      <h2>{game.title}</h2>
-      <p>{game.game_description}</p>
 
-      <Link to={`/games/${game.id}`}>View Details</Link>
-  </div>
-</div>
+    <article className="game-card">
+
+      <div className="game-card-image-container">
+        <img
+          src={game.cover_url}
+          alt={`${game.title} cover`}
+          className="game-card-image"
+        />
+      </div>
+
+      <div className="game-card-content">
+
+        <h2 className="game-card-title">
+          {game.title}
+        </h2>
+
+        <p className="game-card-meta">
+          {new Date(game.release_date).toLocaleDateString('en-US', { timezone: "UTC", year: 'numeric' })}
+        </p>
+
+      
+
+        <Link
+          to={`/games/${game.id}`}
+          className="btn-secondary"
+        >
+          View Details
+        </Link>
+
+      </div>
+
+    </article>
   );
 };
 
