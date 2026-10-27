@@ -6,15 +6,8 @@ const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
 const prisma = new PrismaClient({ adapter });
 
 async function main() {
-    const game = await prisma.game.create({
-        data:{
-            cover_url: 'https://cdn.mobygames.com/covers/11068330-it-takes-two-nintendo-switch-front-cover.jpg',
-            title: 'It Takes Two',
-            game_description: `It Takes Two follows Cody and May, a married couple transformed into living dolls by a magical spell created by their daughter, Rose, after learning of their impending divorce. The couple must work together to navigate a fantastical world, overcome obstacles, and repair their fractured relationship to return to their human bodies. The game emphasizes collaboration, with each player controlling one character and using unique abilities that complement each other.`,
-            release_date: new Date('2021-03-26'),
-            platforms: ['PC', 'PlayStation 4', 'PlayStation 5', 'Xbox One', 'Xbox Series X/S', 'Nintendo Switch', 'Nintendo Switch 2'],
-            trophies: {
-                create: [
+
+     const trophies = [
                     { name: 'Power Couple', description: 'You are unstoppable, nothing stands in your way!', missable: false, grade: 'PLATINUM', rarity: 'ULTRA_RARE' },
                     { name: 'It Took Two', description: 'You did it! CO-LLA-BO-RATION!', missable: false, grade: 'GOLD', rarity: 'RARE' },
                     { name: 'Minigame Megalomania', description: 'All minigames found!', missable: false, grade: 'GOLD', rarity: 'ULTRA_RARE' },
@@ -37,6 +30,16 @@ async function main() {
                     { name: 'Bug Sized Relaxation', description: 'Release that tension at the root level.', missable: false, grade: 'BRONZE', rarity: 'VERY_RARE' },
                     { name: 'Meditation Maestro', description: 'You reached a higher state of mind. \nOr at least some peace and quiet', missable: false, grade: 'BRONZE', rarity: 'VERY_RARE' },
                 ]
+
+    const game = await prisma.game.create({
+        data:{
+            cover_url: 'https://cdn.mobygames.com/covers/11068330-it-takes-two-nintendo-switch-front-cover.jpg',
+            title: 'It Takes Two',
+            game_description: `It Takes Two follows Cody and May, a married couple transformed into living dolls by a magical spell created by their daughter, Rose, after learning of their impending divorce. The couple must work together to navigate a fantastical world, overcome obstacles, and repair their fractured relationship to return to their human bodies. The game emphasizes collaboration, with each player controlling one character and using unique abilities that complement each other.`,
+            release_date: new Date('2021-03-26'),
+            platforms: ['PC', 'PlayStation 4', 'PlayStation 5', 'Xbox One', 'Xbox Series X/S', 'Nintendo Switch', 'Nintendo Switch 2'],
+            trophies: {
+                create: trophies.map((trophy, index) => ({ ...trophy, sort_order: index }))
             }
         }
     })

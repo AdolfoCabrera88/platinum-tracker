@@ -85,6 +85,7 @@ enum Rarity {
 model Trophy {
   id                      String  @id @default(uuid()) @db.Uuid
   game_id                 String  @db.Uuid
+  sort_order              Int     @default(0)
   name                    String 
   description             String  
   grade                    Grade

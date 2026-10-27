@@ -3,7 +3,16 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 import { API_URL } from '../config';
+import TrophyItem from '../components/TrophyItem.jsx';
+import ProgressBar from '../components/ProgressBar.jsx'
 import '../styles/gameDetailsPage.css';
+
+const trophyGrades = [
+        "PLATINUM",
+        "GOLD",
+        "SILVER",
+        "BRONZE"
+    ]
 
 const GameDetailsPage = () => {
     let { id } = useParams();
@@ -16,6 +25,10 @@ const GameDetailsPage = () => {
     const [statusErr, setStatusErr] = useState(null);
     const [platinumErr, setPlatinumErr] = useState(null);
     const [platinumForm, setPlatinumForm] = useState({ hours_spent: '', personal_difficulty: '', notes: '' });
+
+    const [groupByTier, setGroupByTier] = useState(false)
+    const trophiesLocked = !game?.userStatus || game?.userStatus === "PLATINUM"
+    const earnedCount = game ? game.trophies.filter(t => t.earned).length : 0;
 
     const allEarned = game && game.trophies.every(t => t.earned) && game.trophies.length !== 0;
 
@@ -168,34 +181,34 @@ const GameDetailsPage = () => {
                     <div className="game-detail-stats">
 
                     <div className="game-stat">
-                        <span className="game-stat-value">
-                        {game.trophies.length}
-                        </span>
-
                         <span className="game-stat-label">
                         Trophies
                         </span>
+
+                        <span className="game-stat-value">
+                        {game.trophies.length}
+                        </span>
                     </div>
 
 
                     <div className="game-stat">
-                        <span className="game-stat-value">
-                        {game.platforms.join(", ")}
-                        </span>
-
                         <span className="game-stat-label">
                         Platform
                         </span>
+
+                        <span className="game-stat-value">
+                        {game.platforms.join(", ")}
+                        </span>
                     </div>
 
 
                     <div className="game-stat">
-                        <span className="game-stat-value">
-                        {new Date(game.release_date).toLocaleDateString("en-US", { timezone: "UTC:"})}
-                        </span>
-
                         <span className="game-stat-label">
                         Release Date
+                        </span>
+
+                        <span className="game-stat-value">
+                        {new Date(game.release_date).toLocaleDateString("en-US", { timezone: "UTC:"})}
                         </span>
                     </div>
 
@@ -256,9 +269,7 @@ const GameDetailsPage = () => {
                 </section>
 
 
-                {/* =========================================
-                    TROPHIES
-                ========================================= */}
+                {/* TROPHIES */}
 
                 <section className="section">
 
@@ -268,6 +279,19 @@ const GameDetailsPage = () => {
                     Trophies
                     </h2>
 
+                    <div className="toggle-buttons">
+                        <button type="button" className={`toggle-button ${!groupByTier ? 'active' : ''}`} aria-pressed={!groupByTier} onClick={() => setGroupByTier(false)}>
+                            In-Game Order
+                        </button>
+
+                        <button type="button" className={`toggle-button ${groupByTier ? 'active' : ''}`} aria-pressed={groupByTier} onClick={() => setGroupByTier(true)}>
+                            By Tier
+                        </button>
+                    </div>
+
+                    {game.userStatus && (
+                        <ProgressBar earned={earnedCount} total={game.trophies.length} />
+                    )}
                 </div>
 
 
@@ -277,72 +301,51 @@ const GameDetailsPage = () => {
                     </p>
                 )}
 
+                {groupByTier ? (
+                    // group by tier
+                    trophyGrades.map((grade) => {
+                        const group = game.trophies.filter((trophy) => trophy.grade === grade);
+                        if (group.length === 0) return null;
+                        const earnedInGroup = group.filter((trophy) => trophy.earned).length;
 
-                <div className="trophy-list">
+                    return (
+                        <div key={grade} className="trophy-group">
+                            <h3>{grade} · {earnedInGroup}/{group.length}</h3>
 
-                    {game.trophies.map((trophy) => (
+                            <div className="trophy-list">
+                        {group.map((trophy) => (
 
-                    <div
-                        key={trophy.id}
-                        className="trophy-item"
-                    >
-
-                        <div className="trophy-item-icon">
-                        🏆
-                        </div>
-
-
-                        <div className="trophy-item-info">
-
-                        <p className="trophy-item-name">
-                            {trophy.name}
-                        </p>
-
-                        <p className="trophy-item-description">
-                            {trophy.description}
-                        </p>
-
-                        </div>
-
-
-                        <div className="trophy-item-action">
-
-                        <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-
-                            <input
-                            type="checkbox"
-                            checked={trophy.earned ? true : false}
-                            disabled={
-                                !game.userStatus ||
-                                game.userStatus === "PLATINUM"
-                            }
-                            onChange={() =>
-                                handleTrophyChange(trophy)
-                            }
+                            <TrophyItem 
+                                key={trophy.id} 
+                                trophy={trophy} 
+                                disabled={trophiesLocked}
+                                showGrade={!groupByTier} 
+                                onToggle={handleTrophyChange} 
                             />
 
-                            <span className={trophy.earned ? "trophy-item-earned" : "trophy-item-unearned"}>
-                            {trophy.earned
-                                ? "Earned"
-                                : "Not Earned"}
-                            </span>
-
-                        </label>
-
+                        ))}
+                            </div>
                         </div>
+                        );
+                    }) 
+                ) : (
+                    <div className="trophy-list">
+                        {game.trophies.map((trophy) => (
 
+                            <TrophyItem 
+                                key={trophy.id} 
+                                trophy={trophy} 
+                                disabled={trophiesLocked}
+                                showGrade={!groupByTier} 
+                                onToggle={handleTrophyChange} 
+                            />      
+                        ))}
                     </div>
-
-                    ))}
-
-                </div>
-
+                )}
                 </section>
+                 
 
-
-                {/* =========================================
-                    PLATINUM
-                ========================================= */}
+                {/* PLATINUM */}
 
                 <section className="section">
 

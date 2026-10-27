@@ -50,7 +50,7 @@ app.get('/api/games/:id', optionalAuth, async (req, res) => {
     try {
         const game = await prisma.game.findUnique({
             where: { id: req.params.id },
-            include: { trophies: true }
+            include: { trophies: { orderBy: { sort_order: 'asc' } } }
         });
         if (!game) {
             return res.status(404).json({ error: 'Game not found' });
