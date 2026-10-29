@@ -34,10 +34,36 @@ app.get('/api/health', async (req, res) => {
 });
 
 // Get all games
-app.get('/api/games' , async (req, res) =>{
+app.get('/api/games' , optionalAuth, async (req, res) =>{
     try {
-    const games = await prisma.game.findMany();
-    res.json(games);
+    const games = await prisma.game.findMany({
+        include:{ _count: { select: { trophies: true } } }
+    });
+
+    let earnedByGame = {};
+
+    if(req.userId) {
+        const earnedTrophies = await prisma.userTrophy.findMany({ 
+            where: { user_id: req.userId, earned: true }, 
+            select: { trophy: { select: { game_id: true } } } })
+    
+        for (const userTrophy of earnedTrophies) {
+            const gameId = userTrophy.trophy.game_id;
+
+            earnedByGame[gameId] = (earnedByGame[gameId] || 0) + 1;
+        };
+    };
+
+    const result = games.map((game) => {
+      const { _count, ...rest } = game;
+      return {
+        ...rest,
+        totalTrophies: _count.trophies,
+        earnedTrophies: earnedByGame[game.id] || 0,
+      };
+    });
+    
+    res.json(result);
 
     } catch (err) {
         console.error(err); // full detail stays in YOUR terminal, not the response

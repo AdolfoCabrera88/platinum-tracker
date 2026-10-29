@@ -15,7 +15,10 @@ const GamesListPage = () => {
         setLoading(true);
         setError(null);
 
-        const response = await fetch(`${API_URL}/games`);
+        const response = await fetch(`${API_URL}/games`, {
+            credentials: 'include',
+        });
+
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
         }

@@ -352,7 +352,7 @@ const GameDetailsPage = () => {
                 <div className="section-header">
 
                     <h2 className="section-title">
-                    Platinum
+                    Rate Your Platinum
                     </h2>
 
                 </div>

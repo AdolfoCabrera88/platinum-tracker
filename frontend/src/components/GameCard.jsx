@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import ProgressBar from './ProgressBar.jsx';
 import '../styles/App.css';
 
 const GameCard = ({ game }) => {
@@ -25,7 +26,10 @@ const GameCard = ({ game }) => {
           {new Date(game.release_date).toLocaleDateString('en-US', { timezone: "UTC", year: 'numeric' })}
         </p>
 
-      
+        <ProgressBar
+          earned={game.earnedTrophies} 
+          total={game.totalTrophies}
+        />
 
         <Link
           to={`/games/${game.id}`}
