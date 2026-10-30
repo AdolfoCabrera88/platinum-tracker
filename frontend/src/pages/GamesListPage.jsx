@@ -1,7 +1,6 @@
 import GameCard from '../components/GameCard';
 import { useState, useEffect } from 'react';
 import { API_URL } from '../config';
-import '../styles/App.css';
 
 const GamesListPage = () => {
  

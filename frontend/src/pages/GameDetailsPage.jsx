@@ -5,7 +5,6 @@ import { useAuth } from '../context/AuthContext.jsx';
 import { API_URL } from '../config';
 import TrophyItem from '../components/TrophyItem.jsx';
 import ProgressBar from '../components/ProgressBar.jsx'
-import '../styles/app.css';
 
 const trophyGrades = [
         "PLATINUM",
