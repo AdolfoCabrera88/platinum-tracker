@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthContext.jsx';
 import { API_URL } from '../config';
 import TrophyItem from '../components/TrophyItem.jsx';
 import ProgressBar from '../components/ProgressBar.jsx'
-import '../styles/gameDetailsPage.css';
+import '../styles/app.css';
 
 const trophyGrades = [
         "PLATINUM",
@@ -388,7 +388,9 @@ const GameDetailsPage = () => {
                             className="form-input"
                             type="number"
                             name="hours_spent"
-                            min="0"
+                            min="1"
+                            max="5000"
+                            step="1"
                             placeholder="How many hours did it take?"
                             value={platinumForm.hours_spent}
                             onChange={(e) =>

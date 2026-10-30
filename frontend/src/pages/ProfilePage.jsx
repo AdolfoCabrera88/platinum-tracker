@@ -1,4 +1,5 @@
 import {useState, useEffect} from 'react';
+import { Link } from 'react-router-dom'
 import { API_URL } from '../config';
 
 const ProfilePage = () => {
@@ -44,18 +45,82 @@ const ProfilePage = () => {
     }
 
     return (
-        <div>
-            <h1>Profile Page</h1>
-            <p>Total Platinum: {profileData.totalPlatinum}</p>
-            <p>Average Difficulty: {profileData.avgDifficulty.toFixed(1)}</p>
-            <p>Average Hours: {profileData.avgHours.toFixed(1)}</p>
-            <p>Longest Platinum Hours: {profileData.longestPlatinumHours ?? 'N/A'}</p>
-            <p>Shortest Platinum Hours: {profileData.shortestPlatinumHours ?? 'N/A'}</p>
-            <p>Hardest Platinum: {profileData.hardestPlatinum ? `${profileData.hardestPlatinum.game} (${profileData.hardestPlatinum.difficulty}/10)` : 'None yet'}</p>
-            <p>Easiest Platinum: {profileData.easiestPlatinum ? `${profileData.easiestPlatinum.game} (${profileData.easiestPlatinum.difficulty}/10)` : 'None yet'}</p>
-            <p>Total Games: {profileData.totalGames}</p>
-            <p>Total Trophies Earned: {profileData.totalTrophiesEarned}</p>
-        </div>
+        <main>
+            <section className="section">
+                <header className="section-header">
+                    <h1 className="section-title">Profile</h1>
+                </header>
+                
+                {profileData.totalPlatinum === 0 && (
+                    <div>
+                        <p className="empty-state">No Platinum trophies yet.</p>
+                        <Link to="/games" className="btn-secondary">
+                            Browse Games
+                        </Link>
+                    </div>
+                )}
+
+                <div className="stat-grid">
+
+                    <div className="stat-card">
+                        <span className="stat-label">Total Platinum</span>
+                        <span className="stat-number">{profileData.totalPlatinum}</span>
+                    </div>
+
+                    <div className="stat-card">
+                        <span className="stat-label">Hardest Platinum (difficulty)</span>
+                        <span className="stat-number">{profileData.hardestPlatinum ? `${profileData.hardestPlatinum.difficulty}` : 'N/A'}</span>
+                        {profileData.hardestPlatinum?.game && (
+                            <small className="stat-detail">{profileData.hardestPlatinum.game}</small>
+                        )}
+                    </div>
+
+                    <div className="stat-card">
+                        <span className="stat-label">Easiest Platinum (difficulty)</span>
+                        <span className="stat-number">{profileData.easiestPlatinum ? `${profileData.easiestPlatinum.difficulty}` : 'N/A'}</span>
+                        {profileData.easiestPlatinum?.game && (
+                            <small className="stat-detail">{profileData.easiestPlatinum.game}</small>
+                        )}
+                    </div>
+
+                    <div className="stat-card">
+                        <span className="stat-label">Total Games</span>
+                        <span className="stat-number">{profileData.totalGames}</span>
+                    </div>
+
+                    <div className="stat-card">
+                        <span className="stat-label">Longest Platinum Hours</span>
+                        <span className="stat-number">{profileData.longestPlatinumHours?.hours ?? 'N/A'}</span>
+                        {profileData.longestPlatinumHours?.game && (
+                            <small className="stat-detail">{profileData.longestPlatinumHours.game}</small>
+                        )}
+                    </div>
+
+                    <div className="stat-card">
+                        <span className="stat-label">Shortest Platinum Hours</span>
+                        <span className="stat-number">{profileData.shortestPlatinumHours?.hours ?? 'N/A'}</span>
+                        {profileData.shortestPlatinumHours?.game && (
+                            <small className="stat-detail">{profileData.shortestPlatinumHours.game}</small>
+                        )}
+                    </div>
+
+                    <div className="stat-card">
+                        <span className="stat-label">Average Difficulty</span>
+                        <span className="stat-number">{profileData.avgDifficulty?.toFixed(1) ?? 'N/A'}</span>
+                    </div>
+
+                    <div className="stat-card">
+                        <span className="stat-label">Average Hours</span>
+                        <span className="stat-number">{profileData.avgHours?.toFixed(1) ?? 'N/A'}</span>
+                    </div>
+
+                    <div className="stat-card">
+                        <span className="stat-label">Total Trophies Earned</span>
+                        <span className="stat-number">{profileData.totalTrophiesEarned}</span>
+                    </div>
+                </div>
+            </section>
+        </main>
     );
 }
 

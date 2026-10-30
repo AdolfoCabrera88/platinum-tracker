@@ -23,13 +23,15 @@ const GameCard = ({ game }) => {
         </h2>
 
         <p className="game-card-meta">
-          {new Date(game.release_date).toLocaleDateString('en-US', { timezone: "UTC", year: 'numeric' })}
+          {new Date(game.release_date).toLocaleDateString('en-US', { timeZone: "UTC", year: 'numeric' })}
         </p>
 
-        <ProgressBar
-          earned={game.earnedTrophies} 
-          total={game.totalTrophies}
-        />
+        {game.earnedTrophies > 0 && (
+          <ProgressBar
+            earned={game.earnedTrophies}
+            total={game.totalTrophies}
+          />
+        )}
 
         <Link
           to={`/games/${game.id}`}

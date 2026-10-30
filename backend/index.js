@@ -62,7 +62,7 @@ app.get('/api/games' , optionalAuth, async (req, res) =>{
         earnedTrophies: earnedByGame[game.id] || 0,
       };
     });
-    
+
     res.json(result);
 
     } catch (err) {
@@ -300,6 +300,9 @@ app.post('/api/games/:id/platinum', requireAuth, async (req, res) => {
     if(personal_difficulty < 1 || personal_difficulty > 10) {
         return res.status(400).json({ error: 'Personal difficulty must be between 1 and 10' });
     }
+    if(hours_spent < 1 || hours_spent > 5000 ) {
+        return res.status(400).json({ error: 'Hours spent must be between 1 and 5000' });
+    }
 
     try {
     const userTrophies = await prisma.userTrophy.findMany({
@@ -385,6 +388,28 @@ app.get('/api/profile/stats', requireAuth, async (req, res) => {
             include: {game: true}
         });
 
+        const longest = await prisma.platinumRecord.findFirst({
+            where: {
+                user_id: req.userId,
+                hours_spent: { gt: 0 }
+            },
+            orderBy: {
+                hours_spent: 'desc'
+            },
+            include: {game: true}
+        });
+
+        const shortest = await prisma.platinumRecord.findFirst({
+            where: {
+                user_id: req.userId,
+                hours_spent: { gt: 0 }
+            },
+            orderBy: {
+                hours_spent: 'asc'
+            },
+            include: {game: true}
+        });
+
         const totalGames = await prisma.userGame.count({
             where: {
                 user_id: req.userId
@@ -400,10 +425,10 @@ app.get('/api/profile/stats', requireAuth, async (req, res) => {
 
         res.status(200).json({ 
             totalPlatinum: profileStats._count,
-            avgDifficulty: profileStats._avg.personal_difficulty ?? 0,
-            avgHours: profileStats._avg.hours_spent ?? 0,
-            longestPlatinumHours: profileStats._max.hours_spent,
-            shortestPlatinumHours: profileStats._min.hours_spent,
+            avgDifficulty: profileStats._avg.personal_difficulty,
+            avgHours: profileStats._avg.hours_spent,
+            longestPlatinumHours: longest ? { hours: longest.hours_spent, game: longest.game.title } : null,
+            shortestPlatinumHours: shortest ? { hours: shortest.hours_spent, game: shortest.game.title } : null,
             hardestPlatinum: hardest ? { difficulty: hardest.personal_difficulty, game: hardest.game.title } : null,
             easiestPlatinum: easiest ? { difficulty: easiest.personal_difficulty, game: easiest.game.title } : null,
             totalGames,

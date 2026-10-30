@@ -48,7 +48,7 @@ const GamesListPage = () => {
         </div>
 
         {games.length === 0 ? (
-          <p className="game-card-meta">No games available.</p>
+          <p className="empty-state">No games available.</p>
         ) : (
           <div className="game-grid">
             {games.map((game) => (
