@@ -18,6 +18,13 @@ const saltRounds = 10;
 const distPath = path.join(import.meta.dirname, '../frontend/dist');
 const isProduction = process.env.NODE_ENV === 'production';
 
+const setAuthCookie = (res, userId) => {
+    const expiresInSeconds = Number(process.env.JWT_EXPIRATION_TIME); // convert to a number of seconds
+
+        const token = jwt.sign({ userId: userId }, process.env.JWT_SECRET, { expiresIn: expiresInSeconds });
+        res.cookie('token', token, { httpOnly: true, secure: isProduction, maxAge: expiresInSeconds * 1000 });
+}
+
 app.use(cors({ origin: process.env.CLIENT_ORIGIN, credentials: true }));
 app.use(express.json());
 app.use(cookieParser());
@@ -150,8 +157,14 @@ app.post('/api/auth/register', validateUserInput, async (req, res) => {
                 password_hash: hashedPassword
             }
         });
-        const { password_hash, ...safeUser } = newUser;
-        res.status(201).json({ message: 'User registered successfully', user: safeUser });
+        
+        setAuthCookie(res, newUser.id); // Set the authentication cookie with the JWT token from the helper function
+        res.status(201).json({ message: 'User registered successfully', 
+            user: { 
+                id: newUser.id, 
+                username: newUser.username, 
+                email: newUser.email 
+        } });
     } catch (err) {
         if (err.code === 'P2002') {
             return res.status(409).json({ error: 'Username or email already exists' });
@@ -176,10 +189,8 @@ app.post('/api/auth/login', async (req, res) => {
             return res.status(401).json({ error: 'Invalid username or password' });
         }
         
-        const expiresInSeconds = Number(process.env.JWT_EXPIRATION_TIME); // convert to a number of seconds
+        setAuthCookie(res, user.id); // Set the authentication cookie with the JWT token from the helper function
 
-        const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: expiresInSeconds });
-        res.cookie('token', token, { httpOnly: true, secure: isProduction, maxAge: expiresInSeconds * 1000 });
         res.status(200).json({ message: 'Login successful', user: { id: user.id, username: user.username, email: user.email } });
     } catch (err) {
         console.error(err);
@@ -297,11 +308,14 @@ app.post('/api/games/:id/platinum', requireAuth, async (req, res) => {
     if(typeof personal_difficulty !== 'number' || typeof hours_spent !== 'number' || typeof notes !== 'string') {
         return res.status(400).json({ error: 'Invalid input' });
     }
-    if(personal_difficulty < 1 || personal_difficulty > 10) {
-        return res.status(400).json({ error: 'Personal difficulty must be between 1 and 10' });
+    if(!Number.isInteger(personal_difficulty) || personal_difficulty < 1 || personal_difficulty > 10) {
+        return res.status(400).json({ error: 'Personal difficulty must be an integer between 1 and 10' });
     }
-    if(hours_spent < 1 || hours_spent > 5000 ) {
-        return res.status(400).json({ error: 'Hours spent must be between 1 and 5000' });
+    if(!Number.isInteger(hours_spent) || hours_spent < 1 || hours_spent > 5000 ) {
+        return res.status(400).json({ error: 'Hours spent must be an integer between 1 and 5000' });
+    }
+    if(notes.length > 2000) {
+        return res.status(400).json({ error: 'Notes must be at most 2000 characters' });
     }
 
     try {
@@ -326,26 +340,35 @@ app.post('/api/games/:id/platinum', requireAuth, async (req, res) => {
     if(!allEarned) {
         return res.status(409).json({ error: 'Cannot create platinum record unless all trophies are earned' });
     }
-
-        const platinum = await prisma.platinumRecord.create({
-            data: {
-                user_id: req.userId,
-                game_id: req.params.id,
-                personal_difficulty,
-                hours_spent,
-                notes
-            }
+    if (totalTrophies === 0) {
+        return res.status(409).json({
+            error: 'Cannot create platinum record for a game with no trophies'
         });
+    }
 
-        
-        await prisma.userGame.update({
-            where: { user_id_game_id: {
-                user_id: req.userId,
-                game_id: req.params.id
-                } 
-            },
-            data: { status: 'PLATINUM' }
-        });
+       const [platinum] = await prisma.$transaction([
+            prisma.platinumRecord.create({
+                data: {
+                    user_id: req.userId,
+                    game_id: req.params.id,
+                    personal_difficulty,
+                    hours_spent,
+                    notes
+                }
+            }),
+
+            prisma.userGame.update({
+                where: {
+                    user_id_game_id: {
+                        user_id: req.userId,
+                        game_id: req.params.id
+                    }
+                },
+                    data: {
+                    status: 'PLATINUM'
+                }
+            })
+        ]);
         
         res.status(201).json({ message: 'Platinum created successfully', data: platinum });
     } catch (err) {
@@ -363,10 +386,20 @@ app.get('/api/profile/stats', requireAuth, async (req, res) => {
             where: {
                 user_id: req.userId
             }, 
-            _count: true, _avg: { personal_difficulty: true, hours_spent: true }, 
-                _max: { hours_spent: true },
-                 _min: {  hours_spent: true } 
-            });
+            _count: true, _avg: { personal_difficulty: true }
+        });
+
+        const hoursStats = await prisma.platinumRecord.aggregate({
+            where: {
+                user_id: req.userId,
+                hours_spent: {
+                gt: 0
+                }
+            },
+            _avg: {
+                hours_spent: true
+            }
+        });
 
         const hardest = await prisma.platinumRecord.findFirst({
             where: {
@@ -426,7 +459,7 @@ app.get('/api/profile/stats', requireAuth, async (req, res) => {
         res.status(200).json({ 
             totalPlatinum: profileStats._count,
             avgDifficulty: profileStats._avg.personal_difficulty,
-            avgHours: profileStats._avg.hours_spent,
+            avgHours: hoursStats._avg.hours_spent,
             longestPlatinumHours: longest ? { hours: longest.hours_spent, game: longest.game.title } : null,
             shortestPlatinumHours: shortest ? { hours: shortest.hours_spent, game: shortest.game.title } : null,
             hardestPlatinum: hardest ? { difficulty: hardest.personal_difficulty, game: hardest.game.title } : null,

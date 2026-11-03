@@ -1,0 +1,1 @@
+//reduce DRY from gamedetailspage

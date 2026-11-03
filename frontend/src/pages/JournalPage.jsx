@@ -1,15 +1,16 @@
 import {useState, useEffect} from 'react';
 import { Link } from 'react-router-dom';
 import { API_URL } from '../config';
+import JournalEntry from '../components/JournalEntry';
 
 const JournalPage = () => {
 
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [diaryEntries, setDiaryEntries] = useState([]);
+    const [journalEntries, setJournalEntries] = useState([]);
 
     useEffect(() => {
-        const fetchDiaryEntries = async () => {
+        const fetchJournalEntries = async () => {
             try {
                 setLoading(true);
                 setError(null);
@@ -17,11 +18,12 @@ const JournalPage = () => {
                 const response = await fetch(`${API_URL}/profile/journal`, {
                     credentials: 'include',
                 });
+
                 if (!response.ok) {
-                    throw new Error('Failed to fetch diary entries');
+                    throw new Error('Failed to fetch journal entries');
                 }
                 const data = await response.json();
-                setDiaryEntries(data);
+                setJournalEntries(data);
             } catch (err) {
                 setError(err.message);
             } finally {
@@ -29,7 +31,7 @@ const JournalPage = () => {
             }
         };
 
-        fetchDiaryEntries();
+        fetchJournalEntries();
     }, []);
 
     if (loading) {
@@ -41,27 +43,28 @@ const JournalPage = () => {
     }
 
     return (
-        <div>
-            <h1>Journal Page</h1>
-            {diaryEntries.length === 0 ? (
-                <p>No Journal entries found.</p>
-            ) : (
-                <ul>
-                    {diaryEntries.map((entry) => (
-                    <li key={entry.id}>
-                        <Link to={`/games/${entry.game_id}`}>
-                        {entry.game.title}
+        <main>
+            <section className="section">
+                <header className="section-header">
+                    <h1 className="section-title">Journal</h1>
+                </header>
+                {journalEntries.length === 0 ? (
+                    <div>
+                        <p className="empty-state">No Platinum trophies yet.</p>
+                        <Link to="/games" className="btn-secondary">
+                            Browse Games
                         </Link>
+                    </div>
+                ) : (
 
-                        <p>{new Date(entry.platinum_date).toLocaleDateString("en-US", { timezone: "UTC:"})}</p>
-                        <p>Hours: {entry.hours_spent ?? 'N/A'}</p>
-                        <p>Difficulty: {entry.personal_difficulty ?? 'N/A'}</p>
-                        <p>Notes: {entry.notes ?? 'N/A'}</p>
-                    </li>
-                    ))}
-                </ul>
-            )}
-        </div>
+                    <div className="journal-list">
+                        {journalEntries.map((entry) => (
+                            <JournalEntry key={entry.id} entry={entry} />
+                        ))}
+                    </div>
+                )}
+            </section>
+        </main>
     );
 }
 

@@ -816,8 +816,8 @@ input:focus-visible {
   font-weight: 700;
 }
 
-/* Profile Stats*/
-.stat-grid {
+/* ---------------------- Profile Stats ---------------------- */
+.stats-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
 
@@ -864,6 +864,84 @@ input:focus-visible {
 .stat-detail { 
   font-size: 13px;
   color: var(--text-secondary);
+}
+
+/* ----------------------------- Journal Page ------------------------*/
+/* ----------------------------- Journal Page ------------------------ */
+
+.journal-list {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.journal-entry {
+  display: flex;
+  gap: 18px;
+
+  padding: 20px;
+
+  background: var(--bg-card);
+
+  border: 1px solid var(--border);
+
+  border-radius: var(--radius-large);
+}
+
+.journal-entry-cover {
+  width: 90px;
+  aspect-ratio: 3 / 4;
+
+  height: auto;
+
+  flex-shrink: 0;
+
+  object-fit: cover;
+
+  display: block;
+
+  border-radius: var(--radius-medium);
+}
+
+.journal-entry-body {
+  flex: 1;
+  min-width: 0;
+
+  display: flex;
+  flex-direction: column;
+
+  gap: 10px;
+}
+
+.journal-entry-title {
+  margin: 0;
+
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.journal-entry-link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.journal-entry-link:hover {
+  color: var(--blue-bright);
+}
+
+.journal-entry-meta {
+  color: var(--text-secondary);
+
+  font-size: 13px;
+}
+
+.journal-entry-meta p {
+  margin: 0;
+}
+
+.journal-entry-notes {
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
 }
 
  /*  ------------------------------- RESPONSIVE DESIGN -----------------------------------*/

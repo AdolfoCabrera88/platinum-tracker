@@ -60,7 +60,7 @@ const ProfilePage = () => {
                     </div>
                 )}
 
-                <div className="stat-grid">
+                <div className="stats-grid">
 
                     <div className="stat-card">
                         <span className="stat-label">Total Platinum</span>
@@ -69,7 +69,7 @@ const ProfilePage = () => {
 
                     <div className="stat-card">
                         <span className="stat-label">Hardest Platinum (difficulty)</span>
-                        <span className="stat-number">{profileData.hardestPlatinum ? `${profileData.hardestPlatinum.difficulty}` : 'N/A'}</span>
+                        <span className="stat-number">{profileData.hardestPlatinum ? profileData.hardestPlatinum.difficulty : 'N/A'}</span>
                         {profileData.hardestPlatinum?.game && (
                             <small className="stat-detail">{profileData.hardestPlatinum.game}</small>
                         )}
@@ -77,7 +77,7 @@ const ProfilePage = () => {
 
                     <div className="stat-card">
                         <span className="stat-label">Easiest Platinum (difficulty)</span>
-                        <span className="stat-number">{profileData.easiestPlatinum ? `${profileData.easiestPlatinum.difficulty}` : 'N/A'}</span>
+                        <span className="stat-number">{profileData.easiestPlatinum ? profileData.easiestPlatinum.difficulty : 'N/A'}</span>
                         {profileData.easiestPlatinum?.game && (
                             <small className="stat-detail">{profileData.easiestPlatinum.game}</small>
                         )}
