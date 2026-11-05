@@ -984,14 +984,13 @@ input:focus-visible {
   white-space: pre-wrap;
 }
 
- /*  ------------------------------- RESPONSIVE DESIGN -----------------------------------*/
+/* ------------------------------- RESPONSIVE DESIGN ------------------------------- */
 
 /* -------------------- TABLET -------------------- */
 
 @media (max-width: 900px) {
 
   /* Navbar */
-
   .navbar {
     padding: 0 4%;
   }
@@ -1004,21 +1003,19 @@ input:focus-visible {
     gap: 10px;
   }
 
-  .stats-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
   /* General sections */
-
   .section {
     padding: 40px 5%;
   }
 
+  /* Profile stats */
+  .stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 
   /* Game details */
-
   .game-detail-header {
-    grid-template-columns: 200px 1fr;
+    grid-template-columns: 200px minmax(0, 1fr);
     gap: 30px;
     padding: 45px 5%;
   }
@@ -1031,21 +1028,13 @@ input:focus-visible {
     gap: 25px;
   }
 
-
   /* Game grid */
-
   .game-grid {
-    grid-template-columns: repeat(
-      auto-fill,
-      minmax(170px, 1fr)
-    );
-
+    grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
     gap: 16px;
   }
 
-
   /* Trophy items */
-
   .trophy-item {
     gap: 12px;
     padding: 14px;
@@ -1058,13 +1047,10 @@ input:focus-visible {
 @media (max-width: 600px) {
 
   /* Navbar */
-
   .navbar {
     height: auto;
     min-height: 70px;
-
     padding: 15px 5%;
-
     flex-wrap: wrap;
     gap: 14px;
   }
@@ -1075,33 +1061,30 @@ input:focus-visible {
 
   .navbar-links {
     order: 3;
-
     width: 100%;
-
     justify-content: center;
-
     gap: 20px;
-
     padding-top: 4px;
   }
 
-  .navbar-link { padding: 10px 4px; }
+  .navbar-link {
+    padding: 10px 4px;
+  }
 
   .navbar-actions {
     margin-left: auto;
   }
 
   .navbar-actions .btn-secondary {
-    padding: 9px 13px;
+    padding: 12px 14px;
     font-size: 12px;
   }
 
-  .navbar-actions .btn-secondary { padding: 12px 14px; }
-
-  .navbar-user { display: none; }
+  .navbar-user {
+    display: none;
+  }
 
   /* Sections */
-
   .section {
     padding: 35px 5%;
   }
@@ -1115,26 +1098,19 @@ input:focus-visible {
     font-size: 22px;
   }
 
-
   /* Buttons */
-
   .btn-primary,
   .btn-secondary {
     padding: 11px 16px;
   }
 
-  .toggle-button { padding: 12px 10px; }
-
   /* Game grid */
-
   .game-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 14px;
   }
 
-
   /* Game cards */
-
   .game-card-content {
     padding: 13px;
   }
@@ -1147,14 +1123,10 @@ input:focus-visible {
     font-size: 12px;
   }
 
-
   /* Game details */
-
   .game-detail-header {
-    grid-template-columns: 1fr;
-
+    grid-template-columns: minmax(0, 1fr);
     padding: 35px 5%;
-
     gap: 25px;
   }
 
@@ -1179,11 +1151,8 @@ input:focus-visible {
 
   .game-detail-stats {
     display: grid;
-
-    grid-template-columns: repeat(3, 1fr);
-
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 15px;
-
     margin-top: 10px;
   }
 
@@ -1193,46 +1162,32 @@ input:focus-visible {
 
   .game-stat-value {
     font-size: 15px;
-
     overflow-wrap: anywhere;
   }
 
-
-  /* Trophy toggle buttons */
-
+  /* Trophy toggle buttons (the wrapper div in GameDetailsPage.jsx must use the class "toggle-buttons") */
   .toggle-buttons {
     width: 100%;
-
     display: flex;
   }
 
   .toggle-button {
     flex: 1;
-
-    padding: 9px 10px;
-
+    padding: 12px 10px;
     font-size: 12px;
   }
 
-
   /* Trophy progress */
-
   .progress-bar {
     height: 8px;
   }
 
-
-  /* Trophy items */
-
+  /* Trophy items: icon | text | checkbox */
   .trophy-item {
-    align-items: flex-start;
-
     display: grid;
-
-    grid-template-columns: 36px minmax(0, 1fr);
-
+    grid-template-columns: 36px minmax(0, 1fr) auto;
+    align-items: start;
     gap: 10px;
-
     padding: 13px;
   }
 
@@ -1251,12 +1206,12 @@ input:focus-visible {
 
   .trophy-item-description {
     font-size: 12px;
-
     line-height: 1.5;
   }
 
   .trophy-item-action {
-    grid-column: 2;
+    grid-column: 3;
+    align-self: center;
   }
 
   .trophy-item-action label {
@@ -1265,16 +1220,12 @@ input:focus-visible {
     gap: 8px;
   }
 
-
   /* Trophy groups */
-
   .trophy-group h3 {
     font-size: 18px;
   }
 
-
   /* Forms */
-
   .card {
     padding: 22px;
   }
@@ -1283,9 +1234,7 @@ input:focus-visible {
     max-width: 100%;
   }
 
-
   /* Login / Register */
-
   .login-page,
   .register-page {
     min-height: 0;
@@ -1297,15 +1246,15 @@ input:focus-visible {
     width: 100%;
   }
 
-
   /* Platinum card */
-
   .card--platinum {
     padding: 22px;
   }
 
   /* Profile stats */
-    .stats-grid { gap: 12px; }
+  .stats-grid {
+    gap: 12px;
+  }
 
   .stat-card {
     min-width: 0;
@@ -1318,12 +1267,18 @@ input:focus-visible {
     overflow-wrap: anywhere;
   }
 
-  .stat-number { font-size: 26px; }
+  .stat-number {
+    font-size: 26px;
+  }
 
-  .stat-detail { overflow-wrap: anywhere; }
+  .stat-detail {
+    overflow-wrap: anywhere;
+  }
 
-  /* Journal Page */
-  .journal-entry-body { min-width: 0; }
+  /* Journal */
+  .journal-entry-body {
+    min-width: 0;
+  }
 
   .journal-entry-notes {
     overflow-wrap: anywhere;
@@ -1331,12 +1286,12 @@ input:focus-visible {
   }
 }
 
+
 /* -------------------- SMALL PHONE -------------------- */
 
 @media (max-width: 400px) {
 
   /* Navbar */
-
   .navbar {
     padding: 14px 4%;
   }
@@ -1353,9 +1308,7 @@ input:focus-visible {
     font-size: 12px;
   }
 
-
   /* Sections */
-
   .section {
     padding: 30px 4%;
   }
@@ -1364,12 +1317,9 @@ input:focus-visible {
     font-size: 20px;
   }
 
-
   /* Game grid */
-
   .game-grid {
-    grid-template-columns: 1fr;
-
+    grid-template-columns: minmax(0, 1fr);
     gap: 16px;
   }
 
@@ -1377,9 +1327,7 @@ input:focus-visible {
     aspect-ratio: 3 / 4;
   }
 
-
   /* Game details */
-
   .game-detail-header {
     padding: 30px 4%;
   }
@@ -1393,25 +1341,18 @@ input:focus-visible {
   }
 
   .game-detail-stats {
-    grid-template-columns: 1fr;
-
+    grid-template-columns: minmax(0, 1fr);
     gap: 14px;
   }
 
-
   /* Trophy toggles */
-
   .toggle-button {
-    font-size: 12px;
-    padding: 8px 7px;
+    padding: 12px 8px;
   }
 
-
   /* Trophy items */
-
   .trophy-item {
-    grid-template-columns: 30px minmax(0, 1fr);
-
+    grid-template-columns: 30px minmax(0, 1fr) auto;
     padding: 11px;
   }
 
@@ -1420,25 +1361,19 @@ input:focus-visible {
     font-size: 18px;
   }
 
-
   /* Forms */
-
   .card {
     padding: 18px;
   }
 
-    .btn-primary,
-  .btn-secondary {
-    width: 100%;
-    text-align: center;
-  }
-
-    .card .btn-primary,
+  .card .btn-primary,
   .card .btn-secondary {
     width: 100%;
     text-align: center;
   }
 
-  /* Profile Stats */
-  .stats-grid { grid-template-columns: 1fr; }
+  /* Profile stats */
+  .stats-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
