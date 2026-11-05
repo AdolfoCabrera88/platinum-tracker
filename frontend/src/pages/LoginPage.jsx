@@ -3,22 +3,26 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
 function LoginPage() {
-      const { login } = useAuth();
-      const navigate = useNavigate();
-      const [username, setUsername] = useState('');
-      const [password, setPassword] = useState('');
-      const [error, setError] = useState(null);
- 
-  async function handleSubmit(e) {
-        e.preventDefault(); // stops the browser's default full-page-reload form submit
-        setError(null);
-        try {
-            await login(username, password);
-            navigate('/games');
-        } catch (err) {
-            setError(err.message);
+    const { login } = useAuth();
+    const navigate = useNavigate();
+    const [username, setUsername] = useState('');
+    const [password, setPassword] = useState('');
+    const [errors, setErrors] = useState([]);
+    const [submitting, setSubmitting] = useState(false);
+
+        async function handleSubmit(e) {
+            e.preventDefault();
+            setErrors([]);
+            setSubmitting(true);
+            try {
+                await login(username, password);
+                navigate('/games');
+            } catch (err) {
+                setErrors([err.message]); // always an array, because the JSX calls .map on it
+            } finally {
+                setSubmitting(false);
+            }
         }
-    }
 
 
     return (
@@ -26,88 +30,86 @@ function LoginPage() {
 
             <section className="section">
 
-            <div className="card form-card">
+                <div className="card form-card">
 
-                <div className="section-header">
-                <h1 className="section-title">
-                    Welcome Back
-                </h1>
-                </div>
+                    <div className="section-header">
+                        <h1 className="section-title">
+                            Welcome Back
+                        </h1>
+                    </div>
 
-                <form onSubmit={handleSubmit}>
+                    <form onSubmit={handleSubmit}>
 
-                <div className="form-group">
+                    <div className="form-group">
 
-                    <label
-                    htmlFor="username"
-                    className="form-label"
-                    >
-                    Username
-                    </label>
+                        <label
+                        htmlFor="username"
+                        className="form-label"
+                        >
+                        Username
+                        </label>
 
-                    <input
-                    className="form-input"
-                    type="text"
-                    placeholder="Enter your username"
-                    id="username"
-                    value={username}
-                    onChange={(e) =>
-                        setUsername(e.target.value)
-                    }
-                    required
-                    />
+                        <input
+                        className="form-input"
+                        type="text"
+                        placeholder="Enter your username"
+                        id="username"
+                        value={username}
+                        autoComplete="username"
+                        onChange={(e) =>
+                            setUsername(e.target.value)
+                        }
+                        required
+                            />
 
-                </div>
-
-
-                <div className="form-group">
-
-                    <label
-                    htmlFor="password"
-                    className="form-label"
-                    >
-                    Password
-                    </label>
-
-                    <input
-                    className="form-input"
-                    type="password"
-                    placeholder="Enter your password"
-                    id="password"
-                    value={password}
-                    onChange={(e) =>
-                        setPassword(e.target.value)
-                    }
-                    required
-                    />
-
-                </div>
+                    </div>
 
 
-                {error && (
-                    <p className="error">
-                    {error}
+                    <div className="form-group">
+
+                        <label
+                            htmlFor="password"
+                            className="form-label"
+                        >
+                            Password
+                        </label>
+
+                        <input
+                        className="form-input"
+                        type="password"
+                        placeholder="Enter your password"
+                        id="password"
+                        value={password}
+                        autoComplete="current-password"
+                        onChange={(e) =>
+                            setPassword(e.target.value)
+                        }
+                        required
+                        />
+
+                    </div>
+
+
+                    {errors.length > 0 && (
+                        <div className="error" role="alert">
+                            {errors.map((message) => (
+                                <p key={message}>{message}</p>
+                            ))}
+                        </div>
+                    )}
+
+                    <button type="submit" className="btn-primary" disabled={submitting}>
+                        Login
+                    </button>
+
+                    </form>
+
+                    <p className="auth-switch">
+                        Don't have an account?{' '}
+                        <Link to="/register" className="section-link">Register</Link>
                     </p>
-                )}
 
-
-                <button
-                    type="submit"
-                    className="btn-primary"
-                >
-                    Login
-                </button>
-
-                <p>
-                    Don't have an account?{' '}
-                    <Link to="/register" className="section-link">
-                        Register
-                    </Link>
-                </p>
-
-                </form>
-
-            </div>
+                </div>
 
             </section>
 

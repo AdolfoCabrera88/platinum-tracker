@@ -36,16 +36,13 @@ export const AuthProvider =({ children }) => {
             body: JSON.stringify({ username, password }),
         });
         if (!res.ok) {
-            const errData = await res.json();
-            if (Array.isArray(errData.errors)) {
-                const messages = errData.errors.map(e => e.msg).join(',');
-                throw new Error(messages);
-            }
+            const errData = await res.json().catch(() => ({}));
             throw new Error(errData.error || 'Login failed');
         }
+        
         const data = await res.json();
         setUser(data.user);
-    }
+    } 
 
     async function register(username, email, password) {
         const res = await fetch(`${API_URL}/auth/register`, {
@@ -55,10 +52,12 @@ export const AuthProvider =({ children }) => {
             body: JSON.stringify({ username, email, password }),
         });
         if (!res.ok) {
-            const errData = await res.json();
-            if (Array.isArray(errData.errors)) {
-                const messages = errData.errors.map(e => e.msg).join(', ');
-                throw new Error(messages);
+            // .catch(() => ({})) means that if the body isn’t valid JSON, fall through to your || 'Registration failed' message.
+            const errData = await res.json().catch(() => ({})); 
+             if (Array.isArray(errData.errors)) {
+                const error = new Error('Registration validation failed');
+                error.messages = errData.errors.map(e => e.msg);
+                throw error;
             }
             throw new Error(errData.error || 'Registration failed');
         }

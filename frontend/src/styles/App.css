@@ -82,7 +82,19 @@ input:focus-visible {
 }
 
 .error{
+  margin: 12px 0;
+  font-size: 14px;
   color: var(--danger);
+}
+
+.error p {
+  margin: 0 0 4px;
+}
+
+.auth-switch {
+  margin-top: 16px;
+  font-size: 14px;
+  color: var(--text-secondary);
 }
 
 /* ------------------ Section ------------------ */
@@ -228,6 +240,11 @@ input:focus-visible {
 
   box-shadow:
     0 0 28px rgba(22, 131, 255, 0.55);
+}
+
+.btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .btn-secondary {
@@ -565,7 +582,7 @@ input:focus-visible {
 
   gap: 7px;
 
-  margin-bottom: 18px;
+  margin-bottom: 16px;
 }
 
 .form-label {
@@ -573,6 +590,9 @@ input:focus-visible {
 
   font-size: 13px;
   font-weight: 650;
+
+  display: block;
+  margin-bottom: 8px;
 }
 
 .form-input,
@@ -616,6 +636,13 @@ input:focus-visible {
   max-width: 550px
 }
 
+.form-hint {
+  margin: 6px 0 0;
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--text-secondary);
+}
+
 /* ---------------------- Register/Login ----------------------*/
 .login-page,
 .register-page {
@@ -633,6 +660,14 @@ input:focus-visible {
 
 .register-page .card {
   width: 100%;
+}
+
+.password-rules {
+  margin: 0;
+
+  color: var(--text-secondary);
+
+  font-size: 12px;
 }
 
 /* ------------------------- card ------------------*/

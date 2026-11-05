@@ -3,24 +3,29 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
 function RegisterPage() {
-      const { register } = useAuth();
-      const navigate = useNavigate();
-      const [username, setUsername] = useState('');
-      const [password, setPassword] = useState('');
-      const [email, setEmail] = useState('');
-      const [error, setError] = useState(null);
- 
-  async function handleSubmit(e) {
-        e.preventDefault(); // stops the browser's default full-page-reload form submit
-        setError(null);
+    const { register } = useAuth();
+    const navigate = useNavigate();
+    const [username, setUsername] = useState('');
+    const [password, setPassword] = useState('');
+    const [email, setEmail] = useState('');
+    
+    const [errors, setErrors] = useState([]);
+    const [submitting, setSubmitting] = useState(false);
+
+    async function handleSubmit(e) {
+        e.preventDefault();
+        setErrors([]);
+        setSubmitting(true);
         try {
-            await register(username, email, password); 
+            await register(username, email, password);
             navigate('/games');
         } catch (err) {
-            setError(err.message);
+            setErrors(Array.isArray(err.messages) ? err.messages : [err.message]);
+        } finally {
+            setSubmitting(false);
         }
     }
-
+  
 
     return (
          <main className="register-page">
@@ -52,12 +57,16 @@ function RegisterPage() {
                     placeholder="Choose a username"
                     id="username"
                     value={username}
+                    autoComplete="username"
                     onChange={(e) =>
                         setUsername(e.target.value)
                     }
                     required
                     />
 
+                    <p className="form-hint">
+                        3 to 20 characters: letters, numbers and underscores.
+                    </p>
                 </div>
 
 
@@ -76,6 +85,7 @@ function RegisterPage() {
                     placeholder="Enter your email"
                     id="email"
                     value={email}
+                    autoComplete="email"
                     onChange={(e) =>
                         setEmail(e.target.value)
                     }
@@ -100,30 +110,39 @@ function RegisterPage() {
                     placeholder="Create a password"
                     id="password"
                     value={password}
+                    autoComplete="new-password"
                     onChange={(e) =>
                         setPassword(e.target.value)
                     }
                     required
                     />
 
+                     {/* if rules change in index.js update new rules*/}
+                       <p className="form-hint">
+                       At least 8 characters, with an uppercase letter, a lowercase letter, a number and one of @$!%*?&.
+                    </p>
+                    
                 </div>
 
 
-                {error && (
-                    <p className="error">
-                    {error}
-                    </p>
+                {errors.length > 0 && (
+                    <div className="error" role="alert">
+                        {errors.map((message) => (
+                            <p key={message}>{message}</p>
+                        ))}
+                    </div>
                 )}
 
 
                 <button
                     type="submit"
                     className="btn-primary"
+                    disabled={submitting}
                 >
                     Register
                 </button>
 
-                <p>
+                <p className="auth-switch">
                     Already have an account?{' '}
                     <Link to="/login" className="section-link">
                         Log in

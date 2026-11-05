@@ -131,7 +131,7 @@ app.get('/api/games/:id', optionalAuth, async (req, res) => {
         .isEmail().withMessage('Invalid email format')
         .normalizeEmail(),
 
-    body('password')
+    body('password') /* if rules change in register.jsx update new rules*/
         .exists({ checkFalsy: true }).withMessage('Password is required')
         .isLength({ min: 8 }).withMessage('Password must be at least 8 characters long')
         .matches(/[A-Z]/).withMessage('Password must contain at least one uppercase letter')
