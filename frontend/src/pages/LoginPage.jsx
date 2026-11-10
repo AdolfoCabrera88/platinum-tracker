@@ -1,6 +1,6 @@
 import { useAuth } from '../context/AuthContext';
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 
 function LoginPage() {
     const { login } = useAuth();
@@ -10,13 +10,16 @@ function LoginPage() {
     const [errors, setErrors] = useState([]);
     const [submitting, setSubmitting] = useState(false);
 
+    const location = useLocation();
+    const from = location.state?.from || '/games';
+
         async function handleSubmit(e) {
             e.preventDefault();
             setErrors([]);
             setSubmitting(true);
             try {
                 await login(username, password);
-                navigate('/games');
+                navigate(from, { replace: true });
             } catch (err) {
                 setErrors([err.message]); // always an array, because the JSX calls .map on it
             } finally {
@@ -106,7 +109,9 @@ function LoginPage() {
 
                     <p className="auth-switch">
                         Don't have an account?{' '}
-                        <Link to="/register" className="section-link">Register</Link>
+                        <Link to="/register" className="section-link" state={location.state}>
+                            Register
+                        </Link>
                     </p>
 
                 </div>

@@ -697,8 +697,8 @@ input:focus-visible {
 }
 
 .card--platinum {
-  border-color: var(--gold);
-  box-shadow: 0 0 25px rgba(255, 200, 87, 0.15);
+  border-color: var(--platinum);
+  box-shadow: 0 0 25px rgba(82, 197, 255, 0.15);
 }
 
 /* ------------------- trophies -----------------*/
@@ -790,7 +790,7 @@ input:focus-visible {
 }
 
 /* trophy progress*/
-.progress{
+.progress {
   flex-basis: 100%;
 }
 
@@ -849,9 +849,9 @@ input:focus-visible {
 .status-badge {
   display: inline-block;
   padding: 8px 14px;
-  border: 1px solid var(--gold);
+  border: 1px solid var(--platinum);
   border-radius: 999px;
-  color: var(--gold);
+  color: var(--platinum);
   font-size: 14px;
   font-weight: 700;
 }

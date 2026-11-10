@@ -58,7 +58,7 @@ const GameDetailsPage = () => {
     const handleStatusChange = async (newStatus) => {
         if (!newStatus) return; // ignore reselecting the placeholder
         if(!user) {
-            navigate('/login');
+            navigate('/login', { state: { from: location.pathname } })
             return;
         }
         try {
@@ -87,10 +87,6 @@ const GameDetailsPage = () => {
     }
 
     const handleTrophyChange = async (trophy) => {
-    if (!user) {
-        navigate('/login');
-        return;
-    }
     try {
         const response = await fetch(`${API_URL}/trophies/${trophy.id}/progress`, {
             method: 'PATCH',
@@ -218,7 +214,15 @@ const GameDetailsPage = () => {
 
                     <div className="form-group">
 
-                    {game.userStatus === "PLATINUM" ? (
+                    {!game.userStatus ? (
+                        <button
+                            type="button"
+                            className="btn-primary"
+                            onClick={() => handleStatusChange('PLAYING')}
+                        >
+                            Add to library
+                        </button>
+                    ) : game.userStatus === "PLATINUM" ? (
                         <p className="status-badge">🏆 Platinum</p>
                         ) : (
                         <>
@@ -227,15 +231,11 @@ const GameDetailsPage = () => {
                             <select
                                 id="status-select"
                                 className="form-select"
-                                value={game.userStatus || ""}
+                                value={game.userStatus}
                                 onChange={(e) =>
                                 handleStatusChange(e.target.value)
                                 }
                             >
-                                <option value="">
-                                Select status
-                                </option>
-
                                 <option value="WANT_TO_PLAY">
                                 Want to Play
                                 </option>
@@ -246,10 +246,6 @@ const GameDetailsPage = () => {
 
                                 <option value="COMPLETED">
                                 Completed
-                                </option>
-
-                                <option disabled hidden value="PLATINUM">
-                                Platinum
                                 </option>
                             </select>
                         </>

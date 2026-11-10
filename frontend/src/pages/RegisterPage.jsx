@@ -1,6 +1,6 @@
 import { useAuth } from '../context/AuthContext';
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 
 function RegisterPage() {
     const { register } = useAuth();
@@ -12,13 +12,16 @@ function RegisterPage() {
     const [errors, setErrors] = useState([]);
     const [submitting, setSubmitting] = useState(false);
 
+    const location = useLocation();
+    const from = location.state?.from || '/games';
+
     async function handleSubmit(e) {
         e.preventDefault();
         setErrors([]);
         setSubmitting(true);
         try {
             await register(username, email, password);
-            navigate('/games');
+            navigate(from, { replace: true });
         } catch (err) {
             setErrors(Array.isArray(err.messages) ? err.messages : [err.message]);
         } finally {
@@ -144,7 +147,7 @@ function RegisterPage() {
 
                 <p className="auth-switch">
                     Already have an account?{' '}
-                    <Link to="/login" className="section-link">
+                    <Link to="/login" className="section-link" state={location.state}>
                         Log in
                     </Link>
                 </p>
