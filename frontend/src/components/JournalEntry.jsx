@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 
-const JournalEntry = ({ entry }) => {
+const JournalEntry = ({ entry, onEdit }) => {
     return (
         <div className="journal-entry">
             <img src={entry.game.cover_url} alt={`${entry.game.title} cover`} className="journal-entry-cover" />
@@ -23,12 +23,27 @@ const JournalEntry = ({ entry }) => {
                             day: "numeric"
                         })}
                     </p>
+
+                    {entry.hours_spent != null && (
                     <p>Hours: {entry.hours_spent}</p>
+                    )}
+
+                    {entry.personal_difficulty != null && (
                     <p>Difficulty: {`${entry.personal_difficulty} / 10`}</p>
+                    )}
+                    
                     {entry.notes && 
                         <p className="journal-entry-notes">Notes: {entry.notes}</p>
                     }
                 </div>
+
+                <button
+                    type="button"
+                    className="btn-secondary"
+                    onClick={onEdit}
+                >
+                    Edit
+                </button>
             </div>
         </div>
     )

@@ -648,6 +648,11 @@ input:focus-visible {
   color: var(--text-secondary);
 }
 
+.form-optional {
+  font-weight: 400;
+  color: var(--text-secondary);
+}
+
 /* ---------------------- Register/Login ----------------------*/
 .login-page,
 .register-page {
@@ -707,6 +712,28 @@ input:focus-visible {
   flex-direction: column;
 
   gap: 10px;
+}
+
+.trophy-group--PLATINUM, .trophy-group-title--PLATINUM {
+  color: var(--platinum);
+
+  filter:
+    drop-shadow(0 0 6px rgba(82, 197, 255, 0.7));
+}
+
+.trophy-group--GOLD, .trophy-group-title--GOLD {
+  color: var(--gold);
+
+  filter:
+    drop-shadow(0 0 6px rgba(255, 200, 87, 0.5));
+}
+
+.trophy-group--SILVER, .trophy-group-title--SILVER {
+  color: var(--silver);
+}
+
+.trophy-group--BRONZE, .trophy-group-title--BRONZE {
+  color: var(--bronze);
 }
 
 .trophy-item {

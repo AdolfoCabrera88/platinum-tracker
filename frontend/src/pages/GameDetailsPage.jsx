@@ -1,10 +1,11 @@
 import { useParams } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 import { API_URL } from '../config';
 import TrophyItem from '../components/TrophyItem.jsx';
 import ProgressBar from '../components/ProgressBar.jsx'
+import PlatinumForm from '../components/PlatinumForm.jsx';
 
 const trophyGrades = [
         "PLATINUM",
@@ -17,13 +18,13 @@ const GameDetailsPage = () => {
     let { id } = useParams();
     const { user } = useAuth();
     const navigate = useNavigate();
+    const location = useLocation();
 
     const [game, setGame] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [statusErr, setStatusErr] = useState(null);
     const [platinumErr, setPlatinumErr] = useState(null);
-    const [platinumForm, setPlatinumForm] = useState({ hours_spent: '', personal_difficulty: '', notes: '' });
 
     const [groupByTier, setGroupByTier] = useState(false)
     const trophiesLocked = !game?.userStatus || game?.userStatus === "PLATINUM"
@@ -110,9 +111,9 @@ const GameDetailsPage = () => {
         }
     }
 
-    const handlePlatinumSubmit = async (e) => {
-        e.preventDefault();
+    const handlePlatinumSubmit = async (values) => {
         setPlatinumErr(null);
+
         try {
             const response = await fetch(`${API_URL}/games/${id}/platinum`, {
                 method: 'POST',
@@ -120,25 +121,28 @@ const GameDetailsPage = () => {
                     'Content-Type': 'application/json'
                 },
                 credentials: 'include',
-                body: JSON.stringify({
-                    hours_spent: Number(platinumForm.hours_spent),
-                    personal_difficulty: Number(platinumForm.personal_difficulty),
-                    notes: platinumForm.notes
-                })
+                body: JSON.stringify(values)
             });
+
             if (!response.ok) {
-            if (response.status === 409) {
-                setPlatinumErr('Platinum already recorded for this game.');
-            } else {
-                setPlatinumErr('Failed to create platinum record.');
+                const errData = await response.json().catch(() => ({}));
+
+                setPlatinumErr(
+                    errData.error || 'Failed to create platinum record.'
+                );
+
+                return;
             }
-            return;
+
+            setGame(prev => ({
+                ...prev,
+                userStatus: 'PLATINUM'
+            }));
+
+        } catch (err) {
+            setPlatinumErr('Could not reach server');
         }
-        setGame(prev => ({...prev,userStatus: 'PLATINUM'}));
-            } catch (err) {
-                setPlatinumErr('Could not reach server');
-            }
-    }
+    };
 
 
     if (loading) return <p>Loading game details...</p>;
@@ -203,7 +207,7 @@ const GameDetailsPage = () => {
                         </span>
 
                         <span className="game-stat-value">
-                        {new Date(game.release_date).toLocaleDateString("en-US", { timezone: "UTC:"})}
+                        {new Date(game.release_date).toLocaleDateString("en-US", { timeZone: "UTC"})}
                         </span>
                     </div>
 
@@ -305,7 +309,7 @@ const GameDetailsPage = () => {
 
                     return (
                         <div key={grade} className="trophy-group">
-                            <h3>{grade} · {earnedInGroup}/{group.length}</h3>
+                            <h3><span className={`trophy-group-title trophy-group-title--${grade}`}>{grade}</span> {earnedInGroup}/{group.length}</h3>
 
                             <div className="trophy-list">
                         {group.map((trophy) => (
@@ -355,7 +359,7 @@ const GameDetailsPage = () => {
 
                 {!allEarned &&
                     game.userStatus !== "PLATINUM" && (
-                    <p className="game-card-meta">
+                    <p className="hint">
                         Earn all trophies to unlock the platinum.
                     </p>
                     )}
@@ -364,115 +368,17 @@ const GameDetailsPage = () => {
                 {allEarned &&
                     game.userStatus !== "PLATINUM" && (
 
-                    <form
-                        className="card form-card"
+                    <PlatinumForm 
+                        initialValues={{
+                            hours_spent: '',
+                            personal_difficulty: '',
+                            notes: ''
+                        }}
                         onSubmit={handlePlatinumSubmit}
-                    >
-
-                        <div className="form-group">
-
-                        <label
-                            htmlFor="hours-spent"
-                            className="form-label"
-                        >
-                            Hours Spent
-                        </label>
-
-                        <input
-                            id="hours-spent"
-                            className="form-input"
-                            type="number"
-                            name="hours_spent"
-                            min="1"
-                            max="5000"
-                            step="1"
-                            placeholder="How many hours did it take?"
-                            value={platinumForm.hours_spent}
-                            onChange={(e) =>
-                            setPlatinumForm((prev) => ({
-                                ...prev,
-                                hours_spent: e.target.value
-                            }))
-                            }
-                            required
-                        />
-
-                        </div>
-
-
-                        <div className="form-group">
-
-                        <label
-                            htmlFor="personal-difficulty"
-                            className="form-label"
-                        >
-                            Personal Difficulty
-                        </label>
-
-                        <input
-                            id="personal-difficulty"
-                            className="form-input"
-                            type="number"
-                            name="personal_difficulty"
-                            min="1"
-                            max="10"
-                            placeholder="Difficulty from 1–10"
-                            value={platinumForm.personal_difficulty}
-                            onChange={(e) =>
-                            setPlatinumForm((prev) => ({
-                                ...prev,
-                                personal_difficulty: e.target.value
-                            }))
-                            }
-                            required
-                        />
-
-                        </div>
-
-
-                        <div className="form-group">
-
-                        <label
-                            htmlFor="platinum-notes"
-                            className="form-label"
-                        >
-                            Notes
-                        </label>
-
-                        <textarea
-                            id="platinum-notes"
-                            className="form-textarea"
-                            name="notes"
-                            placeholder="Write about your platinum experience..."
-                            value={platinumForm.notes}
-                            onChange={(e) =>
-                            setPlatinumForm((prev) => ({
-                                ...prev,
-                                notes: e.target.value
-                            }))
-                            }
-                        />
-
-                        </div>
-
-
-                        {platinumErr && (
-                        <p className="error">
-                            {platinumErr}
-                        </p>
-                        )}
-
-
-                        <button
-                        type="submit"
-                        className="btn-primary"
-                        >
-                        Create Platinum
-                        </button>
-
-                    </form>
-
-                    )}
+                        submitLabel="Create Platinum"
+                        error={platinumErr}
+                    />
+                )}
 
 
                 {game.userStatus === "PLATINUM" && (

@@ -303,19 +303,85 @@ app.patch('/api/trophies/:trophyId/progress', requireAuth, async (req, res) => {
     }
 });
 
+function validatePlatinumInput(body) {
+    const {
+        personal_difficulty,
+        hours_spent,
+        notes
+    } = body;
+
+    if (personal_difficulty != null) {
+        if (typeof personal_difficulty !== 'number') {
+            return {
+                error: 'Personal Difficulty must be a number'
+            };
+        }
+
+        if (
+            !Number.isInteger(personal_difficulty) ||
+            personal_difficulty < 1 ||
+            personal_difficulty > 10
+        ) {
+            return {
+                error: 'Personal difficulty must be an integer between 1 and 10'
+            };
+        }
+    }
+
+    if (hours_spent != null) {
+        if (typeof hours_spent !== 'number') {
+            return {
+                error: 'Hours Spent must be a number'
+            };
+        }
+
+        if (
+            !Number.isInteger(hours_spent) ||
+            hours_spent < 1 ||
+            hours_spent > 5000
+        ) {
+            return {
+                error: 'Hours spent must be an integer between 1 and 5000'
+            };
+        }
+    }
+
+    let cleanNotes = null;
+
+    if (notes != null) {
+        if (typeof notes !== 'string') {
+            return {
+                error: 'Notes must be text'
+            };
+        }
+
+        const trimmed = notes.trim();
+
+        if (trimmed.length > 2000) {
+            return {
+                error: 'Notes must be at most 2000 characters'
+            };
+        }
+
+        cleanNotes = trimmed === '' ? null : trimmed;
+    }
+
+    return {
+        data: {
+            personal_difficulty: personal_difficulty ?? null,
+            hours_spent: hours_spent ?? null,
+            notes: cleanNotes
+        }
+    };
+};
+
 app.post('/api/games/:id/platinum', requireAuth, async (req, res) => {
-    const { personal_difficulty, hours_spent, notes } = req.body;
-    if(typeof personal_difficulty !== 'number' || typeof hours_spent !== 'number' || typeof notes !== 'string') {
-        return res.status(400).json({ error: 'Invalid input' });
-    }
-    if(!Number.isInteger(personal_difficulty) || personal_difficulty < 1 || personal_difficulty > 10) {
-        return res.status(400).json({ error: 'Personal difficulty must be an integer between 1 and 10' });
-    }
-    if(!Number.isInteger(hours_spent) || hours_spent < 1 || hours_spent > 5000 ) {
-        return res.status(400).json({ error: 'Hours spent must be an integer between 1 and 5000' });
-    }
-    if(notes.length > 2000) {
-        return res.status(400).json({ error: 'Notes must be at most 2000 characters' });
+   const { error, data } = validatePlatinumInput(req.body);
+
+    if (error) {
+        return res.status(400).json({
+            error
+        });
     }
 
     try {
@@ -351,9 +417,7 @@ app.post('/api/games/:id/platinum', requireAuth, async (req, res) => {
                 data: {
                     user_id: req.userId,
                     game_id: req.params.id,
-                    personal_difficulty,
-                    hours_spent,
-                    notes
+                    ...data
                 }
             }),
 
@@ -364,7 +428,7 @@ app.post('/api/games/:id/platinum', requireAuth, async (req, res) => {
                         game_id: req.params.id
                     }
                 },
-                    data: {
+                data: {
                     status: 'PLATINUM'
                 }
             })
@@ -379,6 +443,93 @@ app.post('/api/games/:id/platinum', requireAuth, async (req, res) => {
         res.status(500).json({ error: 'Internal server error' });
     }
 });
+
+app.delete('/api/games/:id/platinum', requireAuth, async (req, res) => {
+    try {
+        const [platinum] = await prisma.$transaction([
+            prisma.platinumRecord.delete({
+                where: {
+                    user_id_game_id: {
+                        user_id: req.userId,
+                        game_id: req.params.id
+                    }
+                }
+            }),
+
+            prisma.userGame.update({
+                where:  {
+                    user_id_game_id: {
+                        user_id: req.userId,
+                        game_id: req.params.id
+                    }
+                },
+                data: {
+                    status: 'COMPLETED'
+                }
+            })
+        ]);
+           res.status(200).json({
+            message: 'Platinum removed successfully',
+            data: platinum
+        });
+
+    } catch (err) {
+        if (err.code === 'P2025') {
+            return res.status(404).json({
+                error: 'No Platinum recorded for this game'
+            });
+        }
+
+        console.error(err);
+        res.status(500).json({
+            error: 'Internal server error'
+        });
+    }
+});
+
+app.patch('/api/games/:id/platinum', requireAuth, async (req, res) => {
+const { error, data } = validatePlatinumInput(req.body);
+
+    if (error) {
+        return res.status(400).json({
+            error
+        });
+    }
+
+    try {
+    const updatePlatinum = await prisma.platinumRecord.update ({
+        where: {
+            user_id_game_id: {
+                user_id: req.userId,
+                game_id: req.params.id
+            }
+        },
+        data: {
+            ...data
+        }
+    });
+
+    res.status(200).json({
+            message: 'Platinum updated successfully',
+            data: updatePlatinum
+        });
+
+    } catch (err) {
+
+        if (err.code === 'P2025') {
+            return res.status(404).json({
+                error: 'No Platinum recorded for this game'
+            });
+        }
+
+        console.error(err);
+
+        res.status(500).json({
+            error: 'Internal server error'
+        });
+    }
+});
+
 
 app.get('/api/profile/stats', requireAuth, async (req, res) => {
     try {
@@ -403,17 +554,19 @@ app.get('/api/profile/stats', requireAuth, async (req, res) => {
 
         const hardest = await prisma.platinumRecord.findFirst({
             where: {
-                user_id: req.userId
+                user_id: req.userId,
+                personal_difficulty: { not: null }
             },
             orderBy: {
-                personal_difficulty: 'desc'
+                personal_difficulty: 'desc' 
             },
             include: {game: true}
         });
 
         const easiest = await prisma.platinumRecord.findFirst({
             where: {
-                user_id: req.userId
+                user_id: req.userId,
+                personal_difficulty: { not: null }
             },
             orderBy: {
                 personal_difficulty: 'asc'

@@ -2,12 +2,15 @@ import {useState, useEffect} from 'react';
 import { Link } from 'react-router-dom';
 import { API_URL } from '../config';
 import JournalEntry from '../components/JournalEntry';
+import PlatinumForm from '../components/PlatinumForm';
 
 const JournalPage = () => {
 
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [journalEntries, setJournalEntries] = useState([]);
+    const [editingId, setEditingId] = useState(null);
+    const [editErr, setEditErr] = useState(null);
 
     useEffect(() => {
         const fetchJournalEntries = async () => {
@@ -34,6 +37,46 @@ const JournalPage = () => {
         fetchJournalEntries();
     }, []);
 
+    const handleEdit = async (entry, values) => {
+        setEditErr(null);
+
+        try {
+            const response = await fetch(
+                `${API_URL}/games/${entry.game_id}/platinum`,
+                {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify(values)
+                }
+            );
+
+            const result = await response.json().catch(() => ({}));
+
+            if (!response.ok) {
+                setEditErr(
+                    result.error || 'Failed to update platinum record.'
+                );
+                return;
+            }
+
+            setJournalEntries(prev =>
+                prev.map(e =>
+                    e.id === entry.id
+                        ? { ...e, ...result.data }
+                        : e
+                )
+            );
+
+            setEditingId(null);
+
+        } catch (err) {
+            setEditErr('Could not reach server');
+        }
+    };
+
     if (loading) {
         return <div>Loading...</div>;
     }
@@ -59,7 +102,32 @@ const JournalPage = () => {
 
                     <div className="journal-list">
                         {journalEntries.map((entry) => (
-                            <JournalEntry key={entry.id} entry={entry} />
+                            editingId === entry.id ? (
+                                <PlatinumForm
+                                    key={entry.id}
+                                    initialValues={{
+                                        hours_spent: String(entry.hours_spent ?? ''),
+                                        personal_difficulty: String(entry.personal_difficulty ?? ''),
+                                        notes: entry.notes ?? ''
+                                    }}
+                                    onSubmit={(values) => handleEdit(entry, values)}
+                                    submitLabel="Save changes"
+                                    error={editErr}
+                                    onCancel={() => {
+                                        setEditingId(null);
+                                        setEditErr(null);
+                                    }}
+                                />
+                            ) : (
+                                <JournalEntry
+                                    key={entry.id}
+                                    entry={entry}
+                                    onEdit={() => {
+                                        setEditErr(null);
+                                        setEditingId(entry.id);
+                                    }}
+                                />
+                            )
                         ))}
                     </div>
                 )}

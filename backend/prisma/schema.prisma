@@ -57,9 +57,9 @@ model PlatinumRecord {
   user_id               String   @db.Uuid
   game_id               String   @db.Uuid
   platinum_date         DateTime @default(now())
-  hours_spent           Int  
-  personal_difficulty   Int //1-10
-  notes                 String  @db.Text
+  hours_spent           Int?  
+  personal_difficulty   Int? //1-10
+  notes                 String?  @db.Text
 
   // Relation fields for the user and game
   user              User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
