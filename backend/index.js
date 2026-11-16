@@ -1,3 +1,5 @@
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
 import 'dotenv/config';
 import express from 'express';
 import { body, validationResult } from 'express-validator';
@@ -25,9 +27,19 @@ const setAuthCookie = (res, userId) => {
         res.cookie('token', token, { httpOnly: true, secure: isProduction, maxAge: expiresInSeconds * 1000 });
 }
 
+app.use(helmet());
 app.use(cors({ origin: process.env.CLIENT_ORIGIN, credentials: true }));
-app.use(express.json());
+app.use(express.json({ limit: '10kb' }));
+app.set('trust proxy', 1);
 app.use(cookieParser());
+
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 10,
+  standardHeaders: 'draft-7',
+  legacyHeaders: false,
+  message: { error: 'Too many attempts. Please try again in 15 minutes.' },
+});
 
 // Health check endpoint
 app.get('/api/health', async (req, res) => {
@@ -141,7 +153,7 @@ app.get('/api/games/:id', optionalAuth, async (req, res) => {
     ];
 
 // User registration endpoint
-app.post('/api/auth/register', validateUserInput, async (req, res) => {
+app.post('/api/auth/register', authLimiter, validateUserInput, async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         return res.status(400).json({ errors: errors.array() });
@@ -175,7 +187,7 @@ app.post('/api/auth/register', validateUserInput, async (req, res) => {
 });
 
 // User login endpoint
-app.post('/api/auth/login', async (req, res) => {
+app.post('/api/auth/login', authLimiter, async (req, res) => {
     const { username, password } = req.body; 
     try {
         const user = await prisma.user.findFirst({ 
