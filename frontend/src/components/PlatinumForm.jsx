@@ -119,7 +119,7 @@ const PlatinumForm = ({ initialValues, onSubmit, submitLabel, error, onCancel })
                         {error}
                     </p>
                 )}
-
+            <div>
                 <button
                     type="submit"
                     className="btn-primary"
@@ -137,7 +137,7 @@ const PlatinumForm = ({ initialValues, onSubmit, submitLabel, error, onCancel })
                     Cancel
                 </button>
             )}
-
+            </div>
         </form>
     )
 }

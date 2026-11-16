@@ -466,6 +466,19 @@ app.delete('/api/games/:id/platinum', requireAuth, async (req, res) => {
                 data: {
                     status: 'COMPLETED'
                 }
+            }),
+            prisma.userTrophy.updateMany({
+                where: {
+                    user_id: req.userId,
+                    trophy: {
+                        game_id: req.params.id,
+                        grade: 'PLATINUM'
+                    }
+                },
+                data: {
+                    earned: false, 
+                    earned_at: null
+                }
             })
         ]);
            res.status(200).json({

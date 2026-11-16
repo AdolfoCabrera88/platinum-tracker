@@ -11,6 +11,7 @@ const JournalPage = () => {
     const [journalEntries, setJournalEntries] = useState([]);
     const [editingId, setEditingId] = useState(null);
     const [editErr, setEditErr] = useState(null);
+    const [actionErr, setActionErr] = useState(null);
 
     useEffect(() => {
         const fetchJournalEntries = async () => {
@@ -77,6 +78,33 @@ const JournalPage = () => {
         }
     };
 
+    const handleDelete = async (entry) => {
+        setActionErr(null);
+
+        try {
+            const response = await fetch(`${API_URL}/games/${entry.game_id}/platinum`, {
+                method: 'DELETE',
+                credentials: 'include'
+            })
+
+            const result = await response.json().catch(() => ({}))
+
+            if (!response.ok) {
+                setActionErr(
+                    result.error || 'Failed to remove Platinum.'
+                );
+                return;
+            }
+
+            setJournalEntries(prev =>
+            prev.filter(e => e.id !== entry.id)
+        );
+
+        } catch (err) {
+            setActionErr('Could not reach server');
+        }
+    };
+
     if (loading) {
         return <div>Loading...</div>;
     }
@@ -101,6 +129,12 @@ const JournalPage = () => {
                 ) : (
 
                     <div className="journal-list">
+                        {actionErr && (
+                        <p className="error" role="alert">
+                            {actionErr}
+                        </p>
+                    )}
+
                         {journalEntries.map((entry) => (
                             editingId === entry.id ? (
                                 <PlatinumForm
@@ -124,8 +158,10 @@ const JournalPage = () => {
                                     entry={entry}
                                     onEdit={() => {
                                         setEditErr(null);
+                                        setActionErr(null);
                                         setEditingId(entry.id);
                                     }}
+                                    onDelete={() => handleDelete(entry)}
                                 />
                             )
                         ))}
