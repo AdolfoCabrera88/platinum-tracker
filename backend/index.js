@@ -24,7 +24,7 @@ const setAuthCookie = (res, userId) => {
     const expiresInSeconds = Number(process.env.JWT_EXPIRATION_TIME); // convert to a number of seconds
 
         const token = jwt.sign({ userId: userId }, process.env.JWT_SECRET, { expiresIn: expiresInSeconds });
-        res.cookie('token', token, { httpOnly: true, secure: isProduction, maxAge: expiresInSeconds * 1000 });
+        res.cookie('token', token, { httpOnly: true, secure: isProduction, maxAge: expiresInSeconds * 1000, sameSite: 'lax' });
 }
 
 app.use(helmet());
@@ -211,7 +211,7 @@ app.post('/api/auth/login', authLimiter, async (req, res) => {
 });
 
 app.post('/api/auth/logout', (req, res) => {
-    res.clearCookie('token', { httpOnly: true, secure: isProduction });
+    res.clearCookie('token', { httpOnly: true, secure: isProduction, sameSite: 'lax' });
     res.status(200).json({ message: 'Logout successful' });
 });
 
