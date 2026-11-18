@@ -45,10 +45,10 @@ const authLimiter = rateLimit({
 app.get('/api/health', async (req, res) => {
     try {
   const userCount = await prisma.user.count();
-  res.json({ status: "ok", userCount: userCount });
+  res.json({ status: "ok" });
   } catch (err) {
         console.error(err); // full detail stays in YOUR terminal, not the response
-        res.status(400).json({ error: 'Invalid user count request' });
+        res.status(500).json({ error: 'Invalid user count request' });
     }
 });
 
@@ -86,7 +86,7 @@ app.get('/api/games' , optionalAuth, async (req, res) =>{
 
     } catch (err) {
         console.error(err); // full detail stays in YOUR terminal, not the response
-        res.status(400).json({ error: 'Invalid game request' });
+        res.status(500).json({ error: 'Failed to load games' });
     }
 });
 
@@ -125,8 +125,17 @@ app.get('/api/games/:id', optionalAuth, async (req, res) => {
         }
         res.json({ ...game, trophies: trophiesWithStatus, userStatus });
     } catch (err) {
-        console.error(err); // full detail stays in YOUR terminal, not the response
-        res.status(400).json({ error: 'Invalid game id' });
+        console.error(err);
+
+        if (err.code === 'P2023') {
+            return res.status(404).json({
+                error: 'Game not found'
+            });
+        }
+
+        return res.status(500).json({
+            error: 'Internal server error'
+        });
     }
 });
 
@@ -146,6 +155,7 @@ app.get('/api/games/:id', optionalAuth, async (req, res) => {
     body('password') /* if rules change in register.jsx update new rules*/
         .exists({ checkFalsy: true }).withMessage('Password is required')
         .isLength({ min: 8 }).withMessage('Password must be at least 8 characters long')
+        .isLength({ max: 72 }).withMessage('Password must be less than 72 characters long')
         .matches(/[A-Z]/).withMessage('Password must contain at least one uppercase letter')
         .matches(/[a-z]/).withMessage('Password must contain at least one lowercase letter')
         .matches(/[0-9]/).withMessage('Password must contain at least one number')
@@ -189,6 +199,10 @@ app.post('/api/auth/register', authLimiter, validateUserInput, async (req, res) 
 // User login endpoint
 app.post('/api/auth/login', authLimiter, async (req, res) => {
     const { username, password } = req.body; 
+
+    if(typeof username !== 'string' || typeof password !== 'string'){
+        return res.status(400).json({ error: 'Username and password are required'});
+    }
     try {
         const user = await prisma.user.findFirst({ 
             where: { username: username }
@@ -234,12 +248,9 @@ app.get('/api/auth/me', requireAuth, async (req, res) => {
 
 app.post('/api/games/:id/library', requireAuth, async (req, res) => {
     const status = req.body.status;
-    const validStatuses = ['WANT_TO_PLAY', 'PLAYING', 'COMPLETED', 'PLATINUM'];
+    const validStatuses = ['WANT_TO_PLAY', 'PLAYING', 'COMPLETED'];
     if (!validStatuses.includes(status)) {
         return res.status(400).json({ error: 'Invalid status value' });
-    }
-    if (status === 'PLATINUM') {
-       return res.status(400).json({ error: 'Platinum status can only be set by recording a Platinum' });
     }
     try {
         // Check if the user already has this game in their library
@@ -273,7 +284,8 @@ app.post('/api/games/:id/library', requireAuth, async (req, res) => {
                     user_id: req.userId,
                     trophy_id: trophy.id,
                     earned: false
-                }))
+                })),
+                skipDuplicates: true
             });
         }
         res.status(200).json({ message: 'Library updated successfully', data: result });
@@ -293,12 +305,31 @@ app.patch('/api/trophies/:trophyId/progress', requireAuth, async (req, res) => {
             where: { user_id_trophy_id: {
                 user_id: req.userId,
                 trophy_id: req.params.trophyId
-            } }
+            } },
+            include: { trophy: { 
+                select: { 
+                    game_id: true 
+            }}}
         });
 
         if(!existingUserTrophy) {
             return res.status(404).json({ error: 'User trophy not found' });
         }
+
+        const userGame = await prisma.userGame.findUnique({
+            where: {
+                user_id_game_id: {
+                    user_id: req.userId,
+                    game_id: existingUserTrophy.trophy.game_id
+                }
+            }
+        });
+
+        if (userGame?.status === 'PLATINUM') {
+            return res.status(409).json({
+                error: 'Remove your Platinum record before changing trophies'
+            });
+        }        
 
         const updatedUserTrophy = await prisma.userTrophy.update({
             where: { user_id_trophy_id: {
@@ -677,7 +708,8 @@ app.use((req, res) => {
 // Error handling middleware for invalid requests
 app.use((err, req, res, next) => {
   console.error(err);
-  res.status(400).json({ error: 'Invalid request' });
+  const status = err.status || 500;
+  res.status(status).json({ error: status === 500 ? 'Internal server error' : 'Invalid request' });
 });
 
 app.listen(port, () => {

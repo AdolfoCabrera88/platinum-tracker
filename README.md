@@ -176,15 +176,19 @@ Open the frontend URL shown by Vite in your browser.
 
 # Security
 
-The application currently uses several security measures:
-- bcrypt hashes user passwords before they are stored.
-- HttpOnly cookies prevent client-side JavaScript from directly accessing the authentication token.
-- Server-side validation validates user input before database operations.
-- express-validator provides request validation for applicable API inputs.
-- Prisma uses parameterized database queries rather than constructing SQL queries from user input.
-- Authentication-protected routes verify the user`s JWT before allowing protected operations.
+- Passwords are hashed with bcrypt before being stored.
+- JWT authentication tokens are stored in HttpOnly cookies rather than localStorage.
+- Authentication cookies use `SameSite` settings to reduce cross-site request risks.
+- Helmet is used to set common HTTP security headers.
+- Rate limiting is used to reduce abuse of API endpoints.
+- Server-side validation prevents invalid or unexpected input from being accepted.
+- express-validator is used for request validation.
+- Prisma uses parameterized queries for database access.
+- Dependabot is enabled to identify vulnerable dependencies.
+- Secret scanning is enabled to help detect accidentally committed credentials or other sensitive values.
+- Protected routes verify the user's JWT before allowing authenticated actions.
 
-Additional hardening planned after the current implementation includes Helmet for HTTP security headers and rate limiting for sensitive API endpoints.
+This project does not currently implement CSRF tokens, email verification, password reset, or account deletion.
 
 
 # API Overview
