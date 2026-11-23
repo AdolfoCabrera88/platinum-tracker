@@ -94,8 +94,8 @@ Install:
 
 1. Clone the repository
 
-git clone [https://github.com/AdolfoCabrera88/platinum-tracker.git]
-cd [platinum-tracker]
+git clone https://github.com/AdolfoCabrera88/platinum-tracker.git
+cd platinum-tracker
 
 2. Install backend dependencies
 
@@ -117,9 +117,9 @@ Add the following variables:
 
 Variable                                 Description
 
-DATABASE_URL= your_neon_database_url        (PostgreSQL connection string for the Neon database.)
+DATABASE_URL = your_neon_database_url        (PostgreSQL connection string for the Neon database.)
 
-JWT_SECRET= your_generated_secret     (Secret used to sign and verify JWT authentication tokens.)
+JWT_SECRET = your_generated_secret     (Secret used to sign and verify JWT authentication tokens.)
 
 JWT_EXPIRATION_TIME= 3600        (JWT lifetime in seconds. The application converts this value to milliseconds when creating the token expiration time.) **Important:** `JWT_EXPIRATION_TIME=3600` is just an example meaning **1 hour**, not a required value.
 
@@ -141,7 +141,7 @@ A template is provided in `frontend/.env.example`.
 
 Add
 Variable                                         Description
-VITE_API_URL= http://localhost:3000/api         (Base URL used by the frontend to communicate with the backend API)
+VITE_API_URL = http://localhost:3000/api         (Base URL used by the frontend to communicate with the backend API)
 
 
 6. Set up the database
@@ -176,20 +176,33 @@ Open the frontend URL shown by Vite in your browser.
 
 # Security
 
-- Passwords are hashed with bcrypt before being stored.
-- JWT authentication tokens are stored in HttpOnly cookies rather than localStorage.
-- Authentication cookies use `SameSite` settings to reduce cross-site request risks.
-- Helmet is used to set common HTTP security headers.
-- Rate limiting is used to reduce abuse of API endpoints.
-- Server-side validation prevents invalid or unexpected input from being accepted.
-- express-validator is used for request validation.
-- Prisma uses parameterized queries for database access.
-- Dependabot is enabled to identify vulnerable dependencies.
-- Secret scanning is enabled to help detect accidentally committed credentials or other sensitive values.
-- Protected routes verify the user's JWT before allowing authenticated actions.
+## What is implemented
+- Passwords: hashed with bcrypt. Never stored or logged in plain text.
+- Sessions: a JWT in an HttpOnly cookie, so page JavaScript can't read it.
+  The cookie is Secure in production and SameSite=Lax. Login and register
+  share one cookie helper, so the flags can't drift apart.
+- Security headers: `helmet`, configured so cover images still load.
+- Rate limiting: `express-rate-limit` on login and register
+`trust proxy` is set so limits key on the real
+  client IP behind Render's proxy.
+- Input handling: request bodies capped at 10kb. Inputs are type-checked, and Platinum hours and difficulty are
+  range-checked. Prisma uses parameterized queries.
+- Authorization: protected routes use `requireAuth`. Users can only read
+  and change their own library, trophies and Platinum records.
+- Errors: server failures return 500, not 200 with an error body.
+- Dependencies: `npm audit` reviewed in backend and frontend. Dependabot
+  config committed.
+- Secrets: no `.env` in git history. Production secrets live in Render environment variables.
+- Verified live: cookie flags checked on the deployed site; test accounts
+  removed.
 
-This project does not currently implement CSRF tokens, email verification, password reset, or account deletion.
-
+## What is NOT implemented
+- No CSRF tokens. I rely on SameSite=Lax plus JSON requests. That reduces
+  the risk but is not a substitute.
+- No email verification. Anyone can register with any email address.
+- No password reset. A forgotten password means the account is lost.
+- No account deletion.
+- No automated tests. Security behavior was verified by hand.
 
 # API Overview
 
